@@ -10,9 +10,9 @@ namespace MapEditor
 {
     public static class RectangleDecomposition
     {     
-        public static Tuple<int,int> getSmartPosition(List<Rectangle> listRect,Rectangle rect)
+        public static Tuple<int,int> getSmartPosition(List<System.Drawing.Rectangle> listRect, System.Drawing.Rectangle rect)
         {
-               
+
             HashSet<Rectangle> hsRect = new HashSet<Rectangle>(listRect);
             List<Rectangle> listGotCollide = new List<Rectangle>();
 
@@ -45,5 +45,6 @@ namespace MapEditor
             return result;
         }
 
+        
     }
 }

@@ -25,6 +25,7 @@ namespace MapEditor
         List<NodeObject> _listGridObject = new List<NodeObject>();
         List<GameObject> _listGameObject = new List<GameObject>();
         List<GameObject> _listGameObjectLoaded = new List<GameObject>();
+        List<System.Drawing.Rectangle> _listGroupedObject = new List<System.Drawing.Rectangle>();
         QuadTree _quadTree4Grid;
 
         int _mapWidth;
@@ -51,12 +52,14 @@ namespace MapEditor
         bool _timeOutGridMovable = false;
         bool _selectedObjectHighlight = false;
         bool _enableSmartCursorDesign = true;
+        bool _groupingObject = false;
 
         PictureBox _selectedTileToDelete = null;
         PictureBox _previousTileSelected = null;
+        Rectangle _rectGroupedObject = Rectangle.Empty;
 
         Rectangle _currentGrid;
-        Rectangle _previousGrid = Rectangle.Empty;
+        Rectangle _previousGrid = System.Drawing.Rectangle.Empty;
 
         Point _pictureBoxCursorPosition;
         bool _hightlightBorder = false;
@@ -64,6 +67,13 @@ namespace MapEditor
         Tuple<int, int> _rectSmartPosition;
         Rectangle _gridHighlight;
         Rectangle _rectObjectSelected;
+
+        Point _startPoint = new Point(-1, -1);
+        Point _nilPoint = new Point(-1, -1);
+        Point _endPoint = Point.Empty;
+        System.Drawing.Rectangle _startGrid, _endGrid;
+
+        bool _highlightSelectedGroup = false;
 
         string _currentLoadedMap = string.Empty;
 
@@ -136,8 +146,8 @@ namespace MapEditor
                         int x = ((i % _mapWidth) * _tileSize) + (_mapWidth * _tileSize) * j;
                         int y = (i / _mapWidth) * _tileSize;
                         int index = _listUniqueTile.FindIndex(u => u == _listTileMap.ElementAt(i));
-                        
-                        Rectangle r = new Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
+
+                        System.Drawing.Rectangle r = new System.Drawing.Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
                         Bitmap clone = _tileSet.Clone(r, _tileSet.PixelFormat);
                         _listTile4Drawing.Add(new Tile { _x = x, _y = y, _texture = clone });
                     }
@@ -157,11 +167,14 @@ namespace MapEditor
                     {
                         int x = (j - 1) * _gridSize;
                         int y = (i - 1) * _gridSize;
-                        Rectangle r = new Rectangle(x, y, _gridSize, _gridSize);
+                        System.Drawing.Rectangle r = new System.Drawing.Rectangle(x, y, _gridSize, _gridSize);
                         _listGridObject.Add(new NodeObject { _boxObject = r, _objectID = count });
                         count++;
                     }
                 }
+
+                //show map info
+                lbMap.Text = "Map: " + bg.Width.ToString() + " x " + bg.Height.ToString();
 
                 //quadtree grid
                 _quadTree4Grid = new QuadTree(0, 0, bg.Width, bg.Height, _listGridObject, _gridSize);
@@ -278,7 +291,7 @@ namespace MapEditor
         {
             PictureBox tile = (PictureBox)sender;
 
-            _rectObjectSelected = new Rectangle(tile.Location.X,tile.Location.Y,tile.Width,tile.Height);
+            _rectObjectSelected = new System.Drawing.Rectangle(tile.Location.X, tile.Location.Y, tile.Width, tile.Height);
 
             if (_previousTileSelected != null &&
                 _previousTileSelected != tile)
@@ -363,10 +376,10 @@ namespace MapEditor
 
             using (Graphics graphics = Graphics.FromImage(outputImage))
             {
-                graphics.DrawImage(firstImage, new Rectangle(new Point(), firstImage.Size),
-                    new Rectangle(new Point(), firstImage.Size), GraphicsUnit.Pixel);
-                graphics.DrawImage(secondImage, new Rectangle(new Point(firstImage.Width, 0), secondImage.Size),
-                    new Rectangle(new Point(), secondImage.Size), GraphicsUnit.Pixel);
+                graphics.DrawImage(firstImage, new System.Drawing.Rectangle(new Point(), firstImage.Size),
+                    new System.Drawing.Rectangle(new Point(), firstImage.Size), GraphicsUnit.Pixel);
+                graphics.DrawImage(secondImage, new System.Drawing.Rectangle(new Point(firstImage.Width, 0), secondImage.Size),
+                    new System.Drawing.Rectangle(new Point(), secondImage.Size), GraphicsUnit.Pixel);
             }
 
             return outputImage;
@@ -382,7 +395,7 @@ namespace MapEditor
             if (_mouseEdit && _editMode)
             {
                 Graphics g = e.Graphics;
-
+                
                 pen.Color = Color.Red;
                 g.DrawRectangle(pen, _eX - _tileObjectWidth / 2, _eY - _tileObjectHeight / 2, _tileObjectWidth, _tileObjectHeight);
             }
@@ -416,6 +429,31 @@ namespace MapEditor
                 g.DrawRectangle(highlight, _gridHighlight);
                 _hightlightBorder = false;
             }
+
+            if (_groupingObject)
+            {
+                Pen highlight = new Pen(Color.HotPink, 4);
+                Graphics g = e.Graphics;
+
+                if (_startGrid != System.Drawing.Rectangle.Empty)
+                {
+                    g.DrawRectangle(highlight, _startGrid);
+                }
+
+                if (_endGrid != System.Drawing.Rectangle.Empty)
+                {
+                    g.DrawRectangle(highlight, _endGrid);
+                }
+            }
+
+            if (_highlightSelectedGroup)
+            {
+                Pen highlight = new Pen(Color.PeachPuff, 4);
+                highlight.Brush = SystemBrushes.MenuHighlight;
+                Graphics g = e.Graphics;
+
+                g.DrawRectangle(highlight, _rectGroupedObject);
+            }
         }
 
         private void pictureBox1_MouseEnter(object sender, EventArgs e)
@@ -434,22 +472,48 @@ namespace MapEditor
         {
             _timer1.Stop();
             _timer1.Start();
-
+            
 
             _eX = e.X;
             _eY = e.Y;
             pictureBox1.Invalidate();
 
-            //
-            Rectangle r = new Rectangle(_eX - _tileObjectWidth / 2, _eY - _tileObjectHeight / 2, _tileObjectWidth, _tileObjectHeight);
+            //show current grid info
+            if (_quadTree4Grid != null)
+            {
+                Rectangle pointer = new Rectangle(_eX, _eY, 1, 1);
+                var list = _quadTree4Grid.getListObjectCanCollide(pointer);
+                Point cursor = new Point(_eX, _eY);
 
-            if (_editMode && _mouseEdit)
+                foreach (var item in list)
+                {
+                    if (item._boxObject.Contains(cursor))
+                    {
+                        lbCurrentGrid.Text = "Grid: " + item._boxObject.X + " " + item._boxObject.Y;
+                        break;
+                    }
+                }
+            }
+
+            if ((_editMode && _mouseEdit)) 
             {
                 if (_quadTree4Grid != null)
                 {
-                    List<NodeObject> listCanCollide = _quadTree4Grid.getListObjectCanCollide(r);
-                    
-                    _timeOutGridMovable = true;
+                    System.Drawing.Rectangle designRect;
+
+                    if (_groupingObject)
+                    {
+                        designRect = new System.Drawing.Rectangle(_eX - _gridSize / 2, _eY - _gridSize / 2, _gridSize, _gridSize);
+                    }
+                    else
+                    {
+
+                        designRect = new System.Drawing.Rectangle(_eX - _tileObjectWidth / 2, _eY - _tileObjectHeight / 2, _tileObjectWidth, _tileObjectHeight);
+                    }
+
+                    List<NodeObject> listCanCollide = _quadTree4Grid.getListObjectCanCollide(designRect);
+
+                    //_timeOutGridMovable = true;
                     foreach (NodeObject item in listCanCollide)
                     {
                         if (item._boxObject.Contains(new Point(_eX, _eY)))
@@ -459,14 +523,11 @@ namespace MapEditor
                             break;
                         }
                     }
-                    List<Rectangle> listRect = new List<Rectangle>();
+                    List<System.Drawing.Rectangle> listRect = new List<System.Drawing.Rectangle>();
                     foreach (var item in listCanCollide)
                     {
                         listRect.Add(item._boxObject);
                     }
-
-
-                    Rectangle designRect = new Rectangle(_eX - _tileObjectWidth / 2, _eY - _tileObjectHeight / 2, _tileObjectWidth, _tileObjectHeight);
                    
                     _rectSmartPosition = RectangleDecomposition.getSmartPosition(listRect, designRect);
                 }
@@ -497,6 +558,8 @@ namespace MapEditor
                     _listGameObject.RemoveAt(index);
 
                     _selectedTileToDelete = null;
+                    lbObjectClicked.Text = "";
+
                 }
             }
         }
@@ -555,11 +618,11 @@ namespace MapEditor
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-
+            
             MouseEventArgs ea = (MouseEventArgs)e;
             _posClickedX = ea.X;
             _posClickedY = ea.Y;
-
+           
             if (_mouseEdit && _editMode)
             {
                 int objectID = _currentID++;
@@ -573,19 +636,57 @@ namespace MapEditor
                 Bitmap image = new Bitmap(path);
                 setObject.Image = image;
                 setObject.Location = new Point(_posClickedX - image.Width / 2, _posClickedY - image.Height / 2);
+                setObject.DoubleClick += Pic_DoubleClick;
                 setObject.Click += (object s, EventArgs ee) =>
                 {
                     PictureBox p = (PictureBox)s;
                     _selectedTileToDelete = p;
-                    if (p.BorderStyle == BorderStyle.None)
+
+                    MouseEventArgs oe = (MouseEventArgs)ee;
+                    if (oe.Button == MouseButtons.Right)
                     {
-                        p.BorderStyle = BorderStyle.FixedSingle;
-                        _selectedObjectID = objectID;
+                        if (_highlightSelectedGroup == false)
+                        {
+                            _highlightSelectedGroup = true;
+
+                            foreach (Rectangle item in _listGroupedObject)
+                            {
+                                if (item.Contains(p.Bounds)) 
+                                {
+                                    _rectGroupedObject = item;
+                                    pictureBox1.Invalidate();
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (_highlightSelectedGroup == true)
+                            {
+                                _highlightSelectedGroup = false;
+                                pictureBox1.Invalidate();
+                            }
+                        }
+                    }
+
+                    if (_groupingObject)
+                    {
+                        return;
                     }
                     else
                     {
-                        p.BorderStyle = BorderStyle.None;
-                        _selectedObjectID = 0;
+                        if (p.BorderStyle == BorderStyle.None)
+                        {
+                            p.BorderStyle = BorderStyle.FixedSingle;
+                            _selectedObjectID = objectID;
+                            lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y;
+                        }
+                        else
+                        {
+                            p.BorderStyle = BorderStyle.None;
+                            lbObjectClicked.Text = "";
+                            //_selectedObjectID = 0;
+                        }
                     }
                 };
                 _listPictureBox.Add(setObject);
@@ -598,9 +699,9 @@ namespace MapEditor
                     _y = setObject.Location.Y,
                     _width = setObject.Width,
                     _height = setObject.Height,
-                    _type=(int)setObject.Tag
+                    _type = (int)setObject.Tag
                 });
-                          
+
                 pictureBox1.Controls.Add(setObject);
 
                 if (_shiftKeyPressed)
@@ -624,6 +725,15 @@ namespace MapEditor
             _editMode = false;
             _mouseEdit = false;
             _currentID = 1;
+            _startPoint = _nilPoint;
+            _endPoint = Point.Empty;
+            _startGrid = Rectangle.Empty;
+            _endGrid = Rectangle.Empty;
+            _groupingObject = false;
+            _rectGroupedObject = Rectangle.Empty;
+            lbMap.Text = "";
+            lbCurrentGrid.Text = "";
+            lbObjectClicked.Text = "";
         }
 
         private void _timer1_Tick(object sender, EventArgs e)
@@ -654,7 +764,15 @@ namespace MapEditor
                 int x = _rectSmartPosition.Item1 + _tileObjectWidth / 2;
                 int y = _rectSmartPosition.Item2 + _tileObjectHeight / 2;
                 _pictureBoxCursorPosition = pictureBox1.PointToScreen(new Point(x, y));
-                _gridHighlight = new Rectangle(_rectSmartPosition.Item1, _rectSmartPosition.Item2, _tileObjectWidth, _tileObjectHeight);
+                if (_groupingObject)
+                {
+                    _gridHighlight = new System.Drawing.Rectangle(_rectSmartPosition.Item1, _rectSmartPosition.Item2, _gridSize, _gridSize);
+                }
+                else
+                {
+
+                    _gridHighlight = new System.Drawing.Rectangle(_rectSmartPosition.Item1, _rectSmartPosition.Item2, _tileObjectWidth, _tileObjectHeight);
+                }
                 _preRectPos = _rectSmartPosition;
                 Cursor.Position = _pictureBoxCursorPosition;
 
@@ -677,12 +795,12 @@ namespace MapEditor
                 allGameObject.Add(new NodeObject
                 {
                     _objectID = item._id,
-                    _boxObject = new Rectangle(item._x, item._y, item._width, item._height)
+                    _boxObject = new System.Drawing.Rectangle(item._x, item._y, item._width, item._height)
                 });
             }
 
             //create quadtree
-            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, allGameObject, 600);                  
+            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, allGameObject, 400);                  
 
             SaveFileDialog s = new SaveFileDialog();
             s.Filter = "txt(*.txt) | *.txt";
@@ -728,9 +846,41 @@ namespace MapEditor
             foreach (GameObject item in _listGameObject)
             {
                 writer.WriteStartElement("object");
-                writer.WriteElementString("t", item._type.ToString());
-                writer.WriteElementString("id", item._id.ToString());
-                writer.WriteElementString("pos", "{" + item._x + "," + item._y + "}");
+                if (item._type == -1)
+                {
+                    writer.WriteStartElement("group");
+                    writer.WriteElementString("t", item._type.ToString());
+                    foreach (SubObject sub in item._group)
+                    {
+                        if (sub._classify == SubObject.ObjectClassify.Single)
+                        {
+                            writer.WriteStartElement("subobj");
+                            writer.WriteElementString("pos", "{" + sub._x + "," + sub._y + "}");
+                            writer.WriteElementString("t", sub._type.ToString());
+                            writer.WriteEndElement();
+                        }
+                        else
+                        {
+                            if (sub._classify == SubObject.ObjectClassify.Sequences)
+                            {
+                                writer.WriteStartElement("subobj");
+                                writer.WriteStartElement("seq");
+                                writer.WriteAttributeString("t", sub._type.ToString());
+                                writer.WriteAttributeString("n", sub._n.ToString());
+                                writer.WriteElementString("pos", "{" + sub._x + "," + sub._y + "}");
+                                writer.WriteEndElement();
+                                writer.WriteEndElement();
+                            }
+                        }
+                    }
+                    writer.WriteEndElement();
+                }
+                else
+                {
+                    writer.WriteElementString("t", item._type.ToString());
+                    writer.WriteElementString("id", item._id.ToString());
+                    writer.WriteElementString("pos", "{" + item._x + "," + item._y + "}");
+                }
                 writer.WriteEndElement();
             }
 
@@ -807,6 +957,10 @@ namespace MapEditor
                     }
                 } //end using
             } //end if
+            else
+            {
+                return;
+            }
 
             _currentID = _listGameObjectLoaded.Max(u => u._id);
 
@@ -816,24 +970,64 @@ namespace MapEditor
             foreach (GameObject item in _listGameObject)
             {
                 string path = _listPathObject.Find(o => o.Item1 == item._type).Item2;
-
                 PictureBox pic = new PictureBox();
                 pic.SizeMode = PictureBoxSizeMode.AutoSize;
                 Bitmap image = new Bitmap(path);
                 pic.Image = image;
                 pic.Location = new Point(item._x, item._y);
+                pic.DoubleClick += Pic_DoubleClick;
                 pic.Click += (object s, EventArgs ee) =>
-                {
+                {                                        
                     PictureBox p = (PictureBox)s;
-                    _selectedTileToDelete = p;
-                    if (p.BorderStyle == BorderStyle.None)
+                    _selectedTileToDelete = p;                  
+
+                    MouseEventArgs oe = (MouseEventArgs)ee;
+                    if (oe.Button == MouseButtons.Right)
                     {
-                        p.BorderStyle = BorderStyle.FixedSingle;
+                        if (_highlightSelectedGroup == false)
+                        {
+                            _highlightSelectedGroup = true;
+
+                            foreach (Rectangle i in _listGroupedObject)
+                            {
+                                if (i.Contains(p.Bounds))
+                                {
+                                    _rectGroupedObject = i;
+                                    pictureBox1.Invalidate();
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (_highlightSelectedGroup == true)
+                            {
+                                _highlightSelectedGroup = false;
+                                pictureBox1.Invalidate();
+                            }
+                        }
+                    }
+
+                    if (_groupingObject)
+                    {
+                        return;
                     }
                     else
                     {
-                        p.BorderStyle = BorderStyle.None;
+                        if (p.BorderStyle == BorderStyle.None)
+                        {
+                            p.BorderStyle = BorderStyle.FixedSingle;
+                            _selectedObjectID = item._id;
+                            lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y;
+                        }
+                        else
+                        {
+                            p.BorderStyle = BorderStyle.None;
+                            lbObjectClicked.Text = "";
+                            //_selectedObjectID = 0;
+                        }
                     }
+
                 };
                 _listPictureBox.Add(pic);
                 pictureBox1.Controls.Add(pic);
@@ -841,6 +1035,69 @@ namespace MapEditor
 
         }
 
+        private void Pic_DoubleClick(object sender, EventArgs e)
+        {
+            
+            if (_groupingObject)
+            {
+                Rectangle determinedGrid = Rectangle.Empty;
+                PictureBox pictureBox = (PictureBox)sender;
+
+                determinedGrid = pictureBox.Bounds;
+
+                if (_startPoint == _nilPoint && _endPoint == Point.Empty)
+                {
+                    _startGrid = determinedGrid;
+                    _startPoint = new Point(determinedGrid.X, determinedGrid.Y);
+                    pictureBox1.Invalidate();
+                }
+                else
+                {
+                    if (_endPoint == Point.Empty)
+                    {
+                        _endGrid = determinedGrid;
+                        _endPoint = new Point(determinedGrid.X, determinedGrid.Y);
+                        pictureBox1.Invalidate();
+                    }
+
+                    if (_startPoint != _nilPoint && _endPoint != Point.Empty)
+                    {
+                        DialogResult result = MessageBox.Show("Do you want to group blocks of object", "Comfirmation", MessageBoxButtons.YesNoCancel);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            int w = _endGrid.X + _endGrid.Width - _startGrid.X;
+                            int h = _endGrid.Y + _endGrid.Height - _startGrid.Y;
+                            
+                            System.Drawing.Rectangle groupRect = new System.Drawing.Rectangle(_startPoint, new Size(w, h));
+                            _listGroupedObject.Add(groupRect);
+                            
+                            List<GameObject> group = _listGameObject.FindAll(obj => groupRect.Contains(new Rectangle(obj._x, obj._y, obj._width, obj._height)));
+
+                            int nRemoved = _listGameObject.RemoveAll(obj => groupRect.Contains(new Rectangle(obj._x, obj._y, obj._width, obj._height)));
+
+                            _listGameObject.Add(new GameObject
+                            {
+                                _id = _currentID++,
+                                _x = groupRect.X,
+                                _y = groupRect.Y,
+                                _width = groupRect.Width,
+                                _height = groupRect.Height,
+                                _type = -1,
+                                _group = decompositionGameObject(group)
+                            });
+
+                            //reset
+                            _startPoint = _nilPoint;
+                            _endPoint = Point.Empty;
+                            _startGrid = Rectangle.Empty;
+                            _endGrid = Rectangle.Empty;
+                        }
+                    }
+                }
+            }
+        }
+        
         private void cursorDesignToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (cursorDesignToolStripMenuItem.Checked == false)
@@ -858,6 +1115,27 @@ namespace MapEditor
             }
         }
 
+        private void groupObjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (groupObjectToolStripMenuItem.Checked == false)
+            {
+                groupObjectToolStripMenuItem.Checked = true;
+                Cursor = Cursors.Hand;
+                _groupingObject = true;
+            }
+            else
+            {
+                groupObjectToolStripMenuItem.Checked = false;
+                Cursor = Cursors.Default;
+                _groupingObject = false;
+
+                _startGrid = Rectangle.Empty;
+                _endGrid = Rectangle.Empty;
+                _startPoint = _nilPoint;
+                _endPoint = Point.Empty;
+            }
+        }
+
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
             Pen p = new Pen(Color.Orchid,5);
@@ -872,7 +1150,7 @@ namespace MapEditor
         {
             Image background = new Bitmap(_mapWidth * _mapSize * _tileSize,
                                           _mapHeight * _tileSize, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
+            
             int singleBgWidth = listTile.Count / (_mapSize + 1);
             int temp = singleBgWidth;
 
@@ -886,8 +1164,8 @@ namespace MapEditor
                     {
                         Tile _tile = listTile.ElementAt(i);
                         graphics.DrawImage(_tile._texture,
-                                            new Rectangle(_tile._x, _tile._y, _tileSize, _tileSize),
-                                            new Rectangle(new Point(), _tile._texture.Size),
+                                            new System.Drawing.Rectangle(_tile._x, _tile._y, _tileSize, _tileSize),
+                                            new System.Drawing.Rectangle(new Point(), _tile._texture.Size),
                                             GraphicsUnit.Pixel);
                     }
 
@@ -898,6 +1176,55 @@ namespace MapEditor
 
             return background;
         }
-        
+
+        private List<SubObject> decompositionGameObject(List<GameObject> list)
+        {
+            List<SubObject> _listSubObject = new List<SubObject>();
+
+            HashSet<int> hsType = new HashSet<int>(list.Select(o => o._type));
+            
+            foreach (int item in hsType)
+            {
+                List<GameObject> l = new List<GameObject>();
+
+                foreach (var i in list)
+                {
+                    if (i._type == item)
+                    {
+                        l.Add(i);
+                    }
+                }
+
+                if (l.Count() == 1)
+                {
+                    _listSubObject.Add(new SubObject
+                    {
+                        _x = l.First()._x,
+                        _y = l.First()._y,
+                        _classify = SubObject.ObjectClassify.Single,
+                        _type = l.First()._type
+                    });
+                }
+                else
+                {
+                    if (l.Count() > 1) 
+                    {
+                        int minX = l.Min(i => i._x);
+                        int minY = l.Min(i => i._y);
+
+                        _listSubObject.Add(new SubObject
+                        {
+                            _x = minX,
+                            _y = minY,
+                            _classify = SubObject.ObjectClassify.Sequences,
+                            _type = l.First()._type,
+                            _n = l.Count()
+                        });
+                    }
+                }
+            }
+
+            return _listSubObject;
+        }
     }
 }

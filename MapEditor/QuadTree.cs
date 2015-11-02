@@ -20,11 +20,11 @@ namespace MapEditor
     {
         public QuadNode _topLeft, _topRight, _bottomLeft, _bottomRight;
         public int _id;
-        public Rectangle _bouding;
+        public System.Drawing.Rectangle _bouding;
         public List<NodeObject> _listNodeObject;
         public QuadNode(int x, int y, int width, int height, int nodeID)
         {
-            _bouding = new Rectangle(x, y, width, height);
+            _bouding = new System.Drawing.Rectangle(x, y, width, height);
             _id = nodeID;
             _listNodeObject = new List<NodeObject>();
         }
@@ -116,14 +116,14 @@ namespace MapEditor
 
             foreach (NodeObject item in listObject)
             {
-                if (Rectangle.Intersect(item._boxObject, quadrant._bouding) != Rectangle.Empty)
+                if (System.Drawing.Rectangle.Intersect((System.Drawing.Rectangle)item._boxObject, quadrant._bouding) != System.Drawing.Rectangle.Empty)
                 {
                     quadrant._listNodeObject.Add(item);
                 }
             }
         }
 
-        public List<NodeObject> getListObjectCanCollide(Rectangle r)
+        public List<NodeObject> getListObjectCanCollide(System.Drawing.Rectangle r)
         {
             List<NodeObject> _result = new List<NodeObject>();
 
@@ -132,7 +132,7 @@ namespace MapEditor
             return _result;
         }
 
-        private void traverseTree(QuadNode node, Rectangle r, List<NodeObject> result)
+        private void traverseTree(QuadNode node, System.Drawing.Rectangle r, List<NodeObject> result)
         {
             if (node == null)
             {
@@ -140,13 +140,13 @@ namespace MapEditor
             }
 
             if (node._listNodeObject.Count != 0 &&
-                Rectangle.Intersect(node._bouding, r) != Rectangle.Empty)
+                System.Drawing.Rectangle.Intersect(node._bouding, r) != System.Drawing.Rectangle.Empty)
             {
                 result.AddRange(node._listNodeObject.ToList());
             }
             else
             {
-                if (Rectangle.Intersect(node._bouding, r) == Rectangle.Empty)
+                if (System.Drawing.Rectangle.Intersect(node._bouding, r) == System.Drawing.Rectangle.Empty)
                 {
                     return;
                 }
