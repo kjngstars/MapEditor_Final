@@ -28,6 +28,8 @@ namespace MapEditor
 
         public int _x { get; set; }
         public int _y { get; set; }
+        public int _width { get; set; }
+        public int _height { get; set; }
         public int _type { get; set; }
         public int _n { get; set; }
         public ObjectClassify _classify { get; set; }

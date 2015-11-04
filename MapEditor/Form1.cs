@@ -13,7 +13,7 @@ using System.Xml;
 
 namespace MapEditor
 {
-   
+
     public partial class Form1 : Form
     {
         HashSet<int> _set = new HashSet<int>();
@@ -25,7 +25,7 @@ namespace MapEditor
         List<NodeObject> _listGridObject = new List<NodeObject>();
         List<GameObject> _listGameObject = new List<GameObject>();
         List<GameObject> _listGameObjectLoaded = new List<GameObject>();
-        List<System.Drawing.Rectangle> _listGroupedObject = new List<System.Drawing.Rectangle>();
+        List<Rectangle> _listGroupedObject = new List<Rectangle>();
         QuadTree _quadTree4Grid;
 
         int _mapWidth;
@@ -59,7 +59,7 @@ namespace MapEditor
         Rectangle _rectGroupedObject = Rectangle.Empty;
 
         Rectangle _currentGrid;
-        Rectangle _previousGrid = System.Drawing.Rectangle.Empty;
+        Rectangle _previousGrid = Rectangle.Empty;
 
         Point _pictureBoxCursorPosition;
         bool _hightlightBorder = false;
@@ -67,11 +67,12 @@ namespace MapEditor
         Tuple<int, int> _rectSmartPosition;
         Rectangle _gridHighlight;
         Rectangle _rectObjectSelected;
+        Rectangle _groupRect = Rectangle.Empty;
 
         Point _startPoint = new Point(-1, -1);
         Point _nilPoint = new Point(-1, -1);
         Point _endPoint = Point.Empty;
-        System.Drawing.Rectangle _startGrid, _endGrid;
+        Rectangle _startGrid, _endGrid;
 
         bool _highlightSelectedGroup = false;
 
@@ -88,7 +89,7 @@ namespace MapEditor
             //Bitmap tileSet = Image.FromFile("tileset.png");
             OpenFileDialog f = new OpenFileDialog();
             f.Filter = "txt(*.txt) | *.txt";
-            
+
             if (f.ShowDialog() == DialogResult.OK)
             {
                 using (XmlReader reader = XmlReader.Create(f.FileName.ToString()))
@@ -116,7 +117,7 @@ namespace MapEditor
                                     }
 
                                     string attribute2 = reader["s"];
-                                    
+
                                     if (attribute2 != null)
                                     {
                                         _mapSize = int.Parse(attribute2);
@@ -147,7 +148,7 @@ namespace MapEditor
                         int y = (i / _mapWidth) * _tileSize;
                         int index = _listUniqueTile.FindIndex(u => u == _listTileMap.ElementAt(i));
 
-                        System.Drawing.Rectangle r = new System.Drawing.Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
+                        Rectangle r = new Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
                         Bitmap clone = _tileSet.Clone(r, _tileSet.PixelFormat);
                         _listTile4Drawing.Add(new Tile { _x = x, _y = y, _texture = clone });
                     }
@@ -160,7 +161,7 @@ namespace MapEditor
                 int nGridColumn = bg.Width / _gridSize;
                 int nGridRow = bg.Height / _gridSize;
                 int count = 1;
-                
+
                 for (int i = 1; i <= nGridRow; i++)
                 {
                     for (int j = 1; j <= nGridColumn; j++)
@@ -198,11 +199,11 @@ namespace MapEditor
             //ground 1
             for (int i = 0; i < 41; i++)
             {
-                string tilePath = "tile/ground1/" + i + ".png";    
-                          
+                string tilePath = "tile/ground1/" + i + ".png";
+
                 PictureBox tile = new PictureBox();
                 tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;               
+                tile.Tag = idCount;
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
                 tile.Image = new Bitmap(tilePath);
                 tile.Click += Tile_Click;
@@ -314,7 +315,7 @@ namespace MapEditor
                 _selectedObjectHighlight = false;
             }
 
-            
+
 
             _tileObjectWidth = tile.Width - 2;
             _tileObjectHeight = tile.Height - 2;
@@ -395,7 +396,7 @@ namespace MapEditor
             if (_mouseEdit && _editMode)
             {
                 Graphics g = e.Graphics;
-                
+
                 pen.Color = Color.Red;
                 g.DrawRectangle(pen, _eX - _tileObjectWidth / 2, _eY - _tileObjectHeight / 2, _tileObjectWidth, _tileObjectHeight);
             }
@@ -472,7 +473,7 @@ namespace MapEditor
         {
             _timer1.Stop();
             _timer1.Start();
-            
+
 
             _eX = e.X;
             _eY = e.Y;
@@ -495,7 +496,7 @@ namespace MapEditor
                 }
             }
 
-            if ((_editMode && _mouseEdit)) 
+            if ((_editMode && _mouseEdit))
             {
                 if (_quadTree4Grid != null)
                 {
@@ -528,7 +529,7 @@ namespace MapEditor
                     {
                         listRect.Add(item._boxObject);
                     }
-                   
+
                     _rectSmartPosition = RectangleDecomposition.getSmartPosition(listRect, designRect);
                 }
             }
@@ -618,11 +619,11 @@ namespace MapEditor
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            
+
             MouseEventArgs ea = (MouseEventArgs)e;
             _posClickedX = ea.X;
             _posClickedY = ea.Y;
-           
+
             if (_mouseEdit && _editMode)
             {
                 int objectID = _currentID++;
@@ -651,8 +652,9 @@ namespace MapEditor
 
                             foreach (Rectangle item in _listGroupedObject)
                             {
-                                if (item.Contains(p.Bounds)) 
+                                if (item.Contains(p.Bounds))
                                 {
+                                    lbGroup.Text = "Rect: " + _groupRect.X + " " + _groupRect.Y + " " + _groupRect.Width + " " + _groupRect.Height;
                                     _rectGroupedObject = item;
                                     pictureBox1.Invalidate();
                                     break;
@@ -663,6 +665,7 @@ namespace MapEditor
                         {
                             if (_highlightSelectedGroup == true)
                             {
+                                lbGroup.Text = "";
                                 _highlightSelectedGroup = false;
                                 pictureBox1.Invalidate();
                             }
@@ -675,17 +678,20 @@ namespace MapEditor
                     }
                     else
                     {
-                        if (p.BorderStyle == BorderStyle.None)
+                        if (oe.Button == MouseButtons.Left)
                         {
-                            p.BorderStyle = BorderStyle.FixedSingle;
-                            _selectedObjectID = objectID;
-                            lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y;
-                        }
-                        else
-                        {
-                            p.BorderStyle = BorderStyle.None;
-                            lbObjectClicked.Text = "";
-                            //_selectedObjectID = 0;
+                            if (p.BorderStyle == BorderStyle.None)
+                            {
+                                p.BorderStyle = BorderStyle.FixedSingle;
+                                _selectedObjectID = objectID;
+                                lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y + " " + (p.Width - 2) + " " + (p.Height - 2);
+                            }
+                            else
+                            {
+                                p.BorderStyle = BorderStyle.None;
+                                lbObjectClicked.Text = "";
+                                //_selectedObjectID = 0;
+                            }
                         }
                     }
                 };
@@ -718,29 +724,35 @@ namespace MapEditor
             {
                 pictureBox1.Controls.Remove(item);
             }
+
             _listGameObject.Clear();
             _listGameObjectLoaded.Clear();
             _listPictureBox.Clear();
+            _listGroupedObject.Clear();
+
             _currentLoadedMap = string.Empty;
             _editMode = false;
             _mouseEdit = false;
             _currentID = 1;
+
             _startPoint = _nilPoint;
             _endPoint = Point.Empty;
             _startGrid = Rectangle.Empty;
             _endGrid = Rectangle.Empty;
             _groupingObject = false;
             _rectGroupedObject = Rectangle.Empty;
-            lbMap.Text = "";
+            _groupRect = Rectangle.Empty;
+
             lbCurrentGrid.Text = "";
             lbObjectClicked.Text = "";
+            lbGroup.Text = "";
         }
 
         private void _timer1_Tick(object sender, EventArgs e)
         {
             _timer1.Stop();
 
-            if (_timeOutGridMovable && _enableSmartCursorDesign) 
+            if (_timeOutGridMovable && _enableSmartCursorDesign)
             {
                 //if (_previousGrid != Rectangle.Empty &&
                 //    _previousGrid.Contains(pictureBox1.PointToClient(Cursor.Position))
@@ -781,9 +793,9 @@ namespace MapEditor
                 pictureBox1.Invalidate();
                 //_timer2.Start();
                 //_stopCursorMovable = false;
-                
+
             }
-            
+
         }
 
         private void saveQuadtreeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -800,7 +812,7 @@ namespace MapEditor
             }
 
             //create quadtree
-            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, allGameObject, 400);                  
+            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, allGameObject, 400);
 
             SaveFileDialog s = new SaveFileDialog();
             s.Filter = "txt(*.txt) | *.txt";
@@ -826,7 +838,7 @@ namespace MapEditor
             {
                 SaveFileDialog s = new SaveFileDialog();
                 s.Filter = "txt(*.txt) | *.txt";
-                
+
 
                 if (s.ShowDialog() != DialogResult.OK)
                 {
@@ -848,15 +860,18 @@ namespace MapEditor
                 writer.WriteStartElement("object");
                 if (item._type == -1)
                 {
-                    writer.WriteStartElement("group");
-                    writer.WriteElementString("t", item._type.ToString());
+                    writer.WriteAttributeString("id", item._id.ToString());
+                    writer.WriteAttributeString("category", "block");
+                    writer.WriteElementString("pos", "{" + item._x + "," + item._y + "}");
+                    writer.WriteElementString("size", "{" + item._width + "," + item._height + "}");
                     foreach (SubObject sub in item._group)
                     {
                         if (sub._classify == SubObject.ObjectClassify.Single)
                         {
                             writer.WriteStartElement("subobj");
-                            writer.WriteElementString("pos", "{" + sub._x + "," + sub._y + "}");
                             writer.WriteElementString("t", sub._type.ToString());
+                            writer.WriteElementString("pos", "{" + sub._x + "," + sub._y + "}");
+                            writer.WriteElementString("size", "{" + sub._width + "," + sub._height + "}");
                             writer.WriteEndElement();
                         }
                         else
@@ -865,21 +880,24 @@ namespace MapEditor
                             {
                                 writer.WriteStartElement("subobj");
                                 writer.WriteStartElement("seq");
-                                writer.WriteAttributeString("t", sub._type.ToString());
                                 writer.WriteAttributeString("n", sub._n.ToString());
+                                writer.WriteElementString("t", sub._type.ToString());
                                 writer.WriteElementString("pos", "{" + sub._x + "," + sub._y + "}");
+                                writer.WriteElementString("size", "{" + sub._width + "," + sub._height + "}");
                                 writer.WriteEndElement();
                                 writer.WriteEndElement();
                             }
                         }
                     }
-                    writer.WriteEndElement();
+
                 }
                 else
                 {
+                    writer.WriteAttributeString("id", item._id.ToString());
+                    writer.WriteAttributeString("category", "single");
                     writer.WriteElementString("t", item._type.ToString());
-                    writer.WriteElementString("id", item._id.ToString());
                     writer.WriteElementString("pos", "{" + item._x + "," + item._y + "}");
+                    writer.WriteElementString("size", "{" + item._width + "," + item._height + "}");
                 }
                 writer.WriteEndElement();
             }
@@ -906,56 +924,148 @@ namespace MapEditor
             if (f.ShowDialog() == DialogResult.OK)
             {
                 _currentLoadedMap = f.FileName;
-                string xmlRawText = File.ReadAllText(f.FileName);
-               
-                using (StringReader stringReader = new StringReader(xmlRawText))
+
+                string type = "", size = "", pos = "", n = "", tPos = "", tSize = "";
+                int x = 0, y = 0, width = 0, height = 0;
+                StreamReader streamReader = new StreamReader(_currentLoadedMap);
+                using (XmlTextReader reader = new XmlTextReader(streamReader))
                 {
-                    using (XmlTextReader reader = new XmlTextReader(stringReader))
+                    reader.ReadStartElement();
+                    while (reader.Read())
                     {
-                        string id = "", pos = "", type = "";
-
-                        while (reader.Read())
-                        {                           
-                            if (reader.IsStartElement())
-                            {
-                                switch (reader.Name)
-                                {
-                                    case "t":
-                                        type = reader.ReadString();
-                                        break;
-                                    case "id":
-                                        id = reader.ReadString();
-                                        break;
-                                    case "pos":
-                                        pos = reader.ReadString();
-                                        break;
-                                }
-
-                                if (id != string.Empty && pos != string.Empty && type != string.Empty) 
-                                {
-                                    int _id = int.Parse(id);
-                                    int commaIndex = pos.IndexOf(",");
-                                    int lastCurlyBrace = pos.IndexOf("}");
-                                    int _x = int.Parse(pos.Substring(1, commaIndex-1));
-                                    int _y = int.Parse(pos.Substring(commaIndex + 1, lastCurlyBrace - commaIndex - 1));
-                                    int _type = int.Parse(type);
-
-                                    _listGameObjectLoaded.Add(new GameObject
-                                    {
-                                        _id = _id,
-                                        _x = _x,
-                                        _y = _y,
-                                        _type = _type
-                                    });
-
-                                    //reset
-                                    id = "";
-                                    pos = "";
-                                }
-                            }
+                        if (reader.NodeType == XmlNodeType.EndElement)
+                        {
+                            reader.Read();
+                            continue;
                         }
+
+                        string category = reader.GetAttribute(1);
+                        string id = reader.GetAttribute(0);
+
+                        switch (category)
+                        {
+                            case "single":
+                                //read end node
+                                reader.Read();
+                                type = reader.ReadElementString();
+                                pos = reader.ReadElementString();
+                                size = reader.ReadElementString();
+
+                                //add to list object
+                                //parse position
+                                parseObjectElement(ref x, ref y, pos);
+                                //parse size
+                                parseObjectElement(ref width, ref height, size);
+
+                                _listGameObjectLoaded.Add(new GameObject
+                                {
+                                    _x = x,
+                                    _y = y,
+                                    _width = width,
+                                    _height = height,
+                                    _id = int.Parse(id),
+                                    _type = int.Parse(type)
+                                });
+
+                                break;
+
+                            case "block":
+                                //read end node
+                                reader.Read();
+                                tPos = reader.ReadElementString();
+                                tSize = reader.ReadElementString();
+
+                                List<SubObject> listGroupObject = new List<SubObject>();
+                                //read subobj
+                                while (reader.Read() && reader.Name == "subobj")
+                                {
+                                    //skip white space at the very end of start element <subobj>  
+                                    reader.Read();
+                                    if (reader.MoveToContent() == XmlNodeType.Element && reader.Name == "seq")
+                                    {
+                                        //get n attribute
+                                        n = reader.GetAttribute(0);
+
+                                        //read end node to skip white space
+                                        reader.Read();
+
+                                        //read next element
+                                        type = reader.ReadElementString();
+                                        pos = reader.ReadElementString();
+                                        size = reader.ReadElementString();
+
+                                        //add to group subobject
+                                        //parse position
+                                        parseObjectElement(ref x, ref y, pos);
+                                        //parse size
+                                        parseObjectElement(ref width, ref height, size);
+
+                                        listGroupObject.Add(new SubObject
+                                        {
+                                            _x = x,
+                                            _y = y,
+                                            _width = width,
+                                            _height = height,
+                                            _type = int.Parse(type),
+                                            _n = int.Parse(n),
+                                            _classify = SubObject.ObjectClassify.Sequences
+                                        });
+
+                                        //read end node </seq>
+                                        reader.ReadEndElement();
+                                        //read end node </subobj>
+                                        reader.ReadEndElement();
+                                    }
+                                    else
+                                    {
+                                        type = reader.ReadElementString();
+                                        pos = reader.ReadElementString();
+                                        size = reader.ReadElementString();
+
+                                        //parse position
+                                        parseObjectElement(ref x, ref y, pos);
+                                        //parse size
+                                        parseObjectElement(ref width, ref height, size);
+
+                                        listGroupObject.Add(new SubObject
+                                        {
+                                            _x = x,
+                                            _y = y,
+                                            _width = width,
+                                            _height = height,
+                                            _type = int.Parse(type),
+                                            _n = 1,
+                                            _classify = SubObject.ObjectClassify.Single
+                                        });
+
+                                        //read end node </subobj>
+                                        reader.ReadEndElement();
+                                    }
+                                }
+
+                                //parse position
+                                parseObjectElement(ref x, ref y, tPos);
+                                //parse size
+                                parseObjectElement(ref width, ref height, tSize);
+                                //add to list object
+                                _listGameObjectLoaded.Add(new GameObject
+                                {
+                                    _x = x,
+                                    _y = y,
+                                    _width = width,
+                                    _height = height,
+                                    _type = -1,
+                                    _id = int.Parse(id),
+                                    _group = listGroupObject
+                                });
+
+                                break;
+                        }
+                        //read end node </object>
+                        reader.ReadEndElement();
                     }
-                } //end using
+                }//end using
+
             } //end if
             else
             {
@@ -969,75 +1079,43 @@ namespace MapEditor
 
             foreach (GameObject item in _listGameObject)
             {
-                string path = _listPathObject.Find(o => o.Item1 == item._type).Item2;
-                PictureBox pic = new PictureBox();
-                pic.SizeMode = PictureBoxSizeMode.AutoSize;
-                Bitmap image = new Bitmap(path);
-                pic.Image = image;
-                pic.Location = new Point(item._x, item._y);
-                pic.DoubleClick += Pic_DoubleClick;
-                pic.Click += (object s, EventArgs ee) =>
-                {                                        
-                    PictureBox p = (PictureBox)s;
-                    _selectedTileToDelete = p;                  
+                string path;
 
-                    MouseEventArgs oe = (MouseEventArgs)ee;
-                    if (oe.Button == MouseButtons.Right)
+                if (item._group == null)
+                {
+                    path = _listPathObject.Find(u => u.Item1 == item._type).Item2;
+                    drawObject(path, item._x, item._y, item._id);
+                }
+                else
+                {
+                    //add to list group rectangle
+                    _listGroupedObject.Add(new Rectangle(item._x, item._y, item._width, item._height));
+
+                    foreach (SubObject o in item._group)
                     {
-                        if (_highlightSelectedGroup == false)
+                        if (o._classify == SubObject.ObjectClassify.Single)
                         {
-                            _highlightSelectedGroup = true;
-
-                            foreach (Rectangle i in _listGroupedObject)
-                            {
-                                if (i.Contains(p.Bounds))
-                                {
-                                    _rectGroupedObject = i;
-                                    pictureBox1.Invalidate();
-                                    break;
-                                }
-                            }
+                            path = _listPathObject.Find(u => u.Item1 == o._type).Item2;
+                            drawObject(path, o._x, o._y, item._id);
                         }
                         else
                         {
-                            if (_highlightSelectedGroup == true)
+                            path = _listPathObject.Find(u => u.Item1 == o._type).Item2;
+                            int width = o._width / o._n;
+
+                            for (int i = 0; i < o._n; i++)
                             {
-                                _highlightSelectedGroup = false;
-                                pictureBox1.Invalidate();
+                                drawObject(path, i * width + o._x, o._y, item._id);
                             }
                         }
                     }
-
-                    if (_groupingObject)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        if (p.BorderStyle == BorderStyle.None)
-                        {
-                            p.BorderStyle = BorderStyle.FixedSingle;
-                            _selectedObjectID = item._id;
-                            lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y;
-                        }
-                        else
-                        {
-                            p.BorderStyle = BorderStyle.None;
-                            lbObjectClicked.Text = "";
-                            //_selectedObjectID = 0;
-                        }
-                    }
-
-                };
-                _listPictureBox.Add(pic);
-                pictureBox1.Controls.Add(pic);
+                }
             }
-
         }
 
         private void Pic_DoubleClick(object sender, EventArgs e)
         {
-            
+
             if (_groupingObject)
             {
                 Rectangle determinedGrid = Rectangle.Empty;
@@ -1068,10 +1146,11 @@ namespace MapEditor
                         {
                             int w = _endGrid.X + _endGrid.Width - _startGrid.X;
                             int h = _endGrid.Y + _endGrid.Height - _startGrid.Y;
-                            
-                            System.Drawing.Rectangle groupRect = new System.Drawing.Rectangle(_startPoint, new Size(w, h));
+
+                            Rectangle groupRect = new Rectangle(_startPoint, new Size(w, h));
+                            _groupRect = groupRect;
                             _listGroupedObject.Add(groupRect);
-                            
+
                             List<GameObject> group = _listGameObject.FindAll(obj => groupRect.Contains(new Rectangle(obj._x, obj._y, obj._width, obj._height)));
 
                             int nRemoved = _listGameObject.RemoveAll(obj => groupRect.Contains(new Rectangle(obj._x, obj._y, obj._width, obj._height)));
@@ -1097,7 +1176,7 @@ namespace MapEditor
                 }
             }
         }
-        
+
         private void cursorDesignToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (cursorDesignToolStripMenuItem.Checked == false)
@@ -1138,19 +1217,19 @@ namespace MapEditor
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
-            Pen p = new Pen(Color.Orchid,5);
+            Pen p = new Pen(Color.Orchid, 5);
 
             if (_selectedObjectHighlight)
             {
                 e.Graphics.DrawRectangle(p, _rectObjectSelected);
-            } 
+            }
         }
 
         private Image makeMapBackground(List<Tile> listTile)
         {
             Image background = new Bitmap(_mapWidth * _mapSize * _tileSize,
                                           _mapHeight * _tileSize, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            
+
             int singleBgWidth = listTile.Count / (_mapSize + 1);
             int temp = singleBgWidth;
 
@@ -1182,7 +1261,7 @@ namespace MapEditor
             List<SubObject> _listSubObject = new List<SubObject>();
 
             HashSet<int> hsType = new HashSet<int>(list.Select(o => o._type));
-            
+
             foreach (int item in hsType)
             {
                 List<GameObject> l = new List<GameObject>();
@@ -1201,21 +1280,30 @@ namespace MapEditor
                     {
                         _x = l.First()._x,
                         _y = l.First()._y,
+                        _width = l.First()._width,
+                        _height = l.First()._height,
                         _classify = SubObject.ObjectClassify.Single,
-                        _type = l.First()._type
+                        _type = l.First()._type,
+                        _n = 1
                     });
                 }
                 else
                 {
-                    if (l.Count() > 1) 
+                    if (l.Count() > 1)
                     {
                         int minX = l.Min(i => i._x);
                         int minY = l.Min(i => i._y);
+                        int maxX = l.Max(i => i._x);
+                        int maxY = l.Max(i => i._y);
+                        int width = maxX - minX + l.First()._width;
+                        int height = maxY - minY + l.First()._height;
 
                         _listSubObject.Add(new SubObject
                         {
                             _x = minX,
                             _y = minY,
+                            _width = width,
+                            _height = height,
                             _classify = SubObject.ObjectClassify.Sequences,
                             _type = l.First()._type,
                             _n = l.Count()
@@ -1225,6 +1313,89 @@ namespace MapEditor
             }
 
             return _listSubObject;
+        }
+
+        private void parseObjectElement(ref int xw, ref int yh, string str)
+        {
+            //parse the string with open-closed curly brace
+            int commaIndex = str.IndexOf(",");
+            int lastClosedBrace = str.IndexOf("}");
+            xw = int.Parse(str.Substring(1, commaIndex - 1));
+            yh = int.Parse(str.Substring(commaIndex + 1, lastClosedBrace - commaIndex - 1));
+        }
+
+        private void drawObject(string path, int x, int y, int id)
+        {
+            PictureBox pic = new PictureBox();
+            pic.SizeMode = PictureBoxSizeMode.AutoSize;
+            Bitmap image = new Bitmap(path);
+            pic.Image = image;
+            pic.Location = new Point(x, y);
+            pic.DoubleClick += Pic_DoubleClick;
+            pic.Click += (object s, EventArgs ee) =>
+            {
+                PictureBox p = (PictureBox)s;
+                _selectedTileToDelete = p;
+
+                MouseEventArgs oe = (MouseEventArgs)ee;
+                if (oe.Button == MouseButtons.Right)
+                {
+                    if (_highlightSelectedGroup == false)
+                    {
+
+
+                        _highlightSelectedGroup = true;
+
+                        foreach (Rectangle i in _listGroupedObject)
+                        {
+                            if (i.Contains(p.Bounds))
+                            {
+                                lbGroup.Text = "Rect: " + _groupRect.X + " " + _groupRect.Y + " " + _groupRect.Width + " " + _groupRect.Height;
+                                _rectGroupedObject = i;
+                                pictureBox1.Invalidate();
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (_highlightSelectedGroup == true)
+                        {
+                            lbGroup.Text = "";
+                            _highlightSelectedGroup = false;
+                            pictureBox1.Invalidate();
+                        }
+                    }
+                }
+
+                if (_groupingObject)
+                {
+                    return;
+                }
+                else
+                {
+                    if (oe.Button == MouseButtons.Left)
+                    {
+
+
+                        if (p.BorderStyle == BorderStyle.None)
+                        {
+                            p.BorderStyle = BorderStyle.FixedSingle;
+                            _selectedObjectID = id;
+                            lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y + " " + (p.Width - 2) + " " + (p.Height - 2);
+                        }
+                        else
+                        {
+                            p.BorderStyle = BorderStyle.None;
+                            lbObjectClicked.Text = "";
+                            //_selectedObjectID = 0;
+                        }
+                    }
+                }
+
+            };
+            _listPictureBox.Add(pic);
+            pictureBox1.Controls.Add(pic);
         }
     }
 }

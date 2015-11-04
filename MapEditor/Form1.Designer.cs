@@ -48,7 +48,6 @@
             this.btnLoadMap = new System.Windows.Forms.Button();
             this.btnLoadObject = new System.Windows.Forms.Button();
             this.btnSaveMap = new System.Windows.Forms.Button();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panelDesign = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -56,6 +55,8 @@
             this.lbMap = new System.Windows.Forms.Label();
             this.lbCurrentGrid = new System.Windows.Forms.Label();
             this.lbObjectClicked = new System.Windows.Forms.Label();
+            this.lbGroup = new System.Windows.Forms.Label();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -263,16 +264,6 @@
             this.btnSaveMap.UseVisualStyleBackColor = true;
             this.btnSaveMap.Click += new System.EventHandler(this.btnLoadObjectFile_Click);
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.AutoScroll = true;
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(724, 5);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(274, 465);
-            this.flowLayoutPanel1.TabIndex = 1;
-            this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
-            // 
             // tableLayoutPanel4
             // 
             this.tableLayoutPanel4.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
@@ -323,6 +314,7 @@
             this.tableLayoutPanel5.Controls.Add(this.lbMap, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.lbCurrentGrid, 3, 0);
             this.tableLayoutPanel5.Controls.Add(this.lbObjectClicked, 1, 0);
+            this.tableLayoutPanel5.Controls.Add(this.lbGroup, 2, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(4, 381);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
@@ -363,6 +355,27 @@
             this.lbObjectClicked.Size = new System.Drawing.Size(167, 27);
             this.lbObjectClicked.TabIndex = 2;
             this.lbObjectClicked.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbGroup
+            // 
+            this.lbGroup.AutoSize = true;
+            this.lbGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbGroup.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbGroup.Location = new System.Drawing.Point(349, 0);
+            this.lbGroup.Name = "lbGroup";
+            this.lbGroup.Size = new System.Drawing.Size(167, 27);
+            this.lbGroup.TabIndex = 3;
+            this.lbGroup.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.AutoScroll = true;
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(724, 5);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(274, 465);
+            this.flowLayoutPanel1.TabIndex = 1;
+            this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
             // Form1
             // 
@@ -419,6 +432,7 @@
         private System.Windows.Forms.Label lbMap;
         private System.Windows.Forms.Label lbCurrentGrid;
         private System.Windows.Forms.Label lbObjectClicked;
+        private System.Windows.Forms.Label lbGroup;
     }
 }
 
