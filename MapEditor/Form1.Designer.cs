@@ -90,7 +90,6 @@
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Inset;
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 0);
@@ -106,7 +105,7 @@
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Inset;
+            this.tableLayoutPanel3.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tableLayoutPanel3.ColumnCount = 4;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
@@ -117,12 +116,12 @@
             this.tableLayoutPanel3.Controls.Add(this.btnLoadObject, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.btnSaveMap, 2, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(5, 5);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(701, 35);
-            this.tableLayoutPanel3.TabIndex = 1;
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(705, 35);
+            this.tableLayoutPanel3.TabIndex = 0;
             // 
             // menuStrip1
             // 
@@ -130,9 +129,9 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.modeToolStripMenuItem,
             this.stuffToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(524, 2);
+            this.menuStrip1.Location = new System.Drawing.Point(529, 1);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(175, 31);
+            this.menuStrip1.Size = new System.Drawing.Size(175, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -145,7 +144,7 @@
             this.groupObjectToolStripMenuItem});
             this.modeToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.modeToolStripMenuItem.Name = "modeToolStripMenuItem";
-            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 27);
+            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 31);
             this.modeToolStripMenuItem.Text = "Mode";
             // 
             // gridToolStripMenuItem
@@ -204,7 +203,7 @@
             this.clearAllToolStripMenuItem});
             this.stuffToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.stuffToolStripMenuItem.Name = "stuffToolStripMenuItem";
-            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 27);
+            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 31);
             this.stuffToolStripMenuItem.Text = "Stuff";
             // 
             // saveMapObjectToolStripMenuItem
@@ -232,10 +231,11 @@
             // 
             this.btnLoadMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnLoadMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLoadMap.Location = new System.Drawing.Point(5, 5);
+            this.btnLoadMap.Location = new System.Drawing.Point(4, 4);
             this.btnLoadMap.Name = "btnLoadMap";
-            this.btnLoadMap.Size = new System.Drawing.Size(166, 25);
+            this.btnLoadMap.Size = new System.Drawing.Size(169, 27);
             this.btnLoadMap.TabIndex = 1;
+            this.btnLoadMap.TabStop = false;
             this.btnLoadMap.Text = "Load Map";
             this.btnLoadMap.UseVisualStyleBackColor = true;
             this.btnLoadMap.Click += new System.EventHandler(this.btnLoadMap_Click);
@@ -244,22 +244,24 @@
             // 
             this.btnLoadObject.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnLoadObject.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLoadObject.Location = new System.Drawing.Point(179, 5);
+            this.btnLoadObject.Location = new System.Drawing.Point(180, 4);
             this.btnLoadObject.Name = "btnLoadObject";
-            this.btnLoadObject.Size = new System.Drawing.Size(166, 25);
+            this.btnLoadObject.Size = new System.Drawing.Size(169, 27);
             this.btnLoadObject.TabIndex = 2;
+            this.btnLoadObject.TabStop = false;
             this.btnLoadObject.Text = "Load tileset";
             this.btnLoadObject.UseVisualStyleBackColor = true;
-            this.btnLoadObject.Click += new System.EventHandler(this.btnLoadObject_Click);
+            this.btnLoadObject.Click += new System.EventHandler(this.btnLoadTileSet_Click);
             // 
             // btnSaveMap
             // 
             this.btnSaveMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnSaveMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveMap.Location = new System.Drawing.Point(353, 5);
+            this.btnSaveMap.Location = new System.Drawing.Point(356, 4);
             this.btnSaveMap.Name = "btnSaveMap";
-            this.btnSaveMap.Size = new System.Drawing.Size(166, 25);
+            this.btnSaveMap.Size = new System.Drawing.Size(169, 27);
             this.btnSaveMap.TabIndex = 3;
+            this.btnSaveMap.TabStop = false;
             this.btnSaveMap.Text = "Load Object";
             this.btnSaveMap.UseVisualStyleBackColor = true;
             this.btnSaveMap.Click += new System.EventHandler(this.btnLoadObjectFile_Click);
@@ -272,12 +274,12 @@
             this.tableLayoutPanel4.Controls.Add(this.panelDesign, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel5, 0, 1);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(5, 48);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 44);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 92F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 8F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(701, 412);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(705, 418);
             this.tableLayoutPanel4.TabIndex = 2;
             // 
             // panelDesign
@@ -287,7 +289,7 @@
             this.panelDesign.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelDesign.Location = new System.Drawing.Point(4, 4);
             this.panelDesign.Name = "panelDesign";
-            this.panelDesign.Size = new System.Drawing.Size(693, 370);
+            this.panelDesign.Size = new System.Drawing.Size(697, 375);
             this.panelDesign.TabIndex = 1;
             // 
             // pictureBox1
@@ -316,11 +318,11 @@
             this.tableLayoutPanel5.Controls.Add(this.lbObjectClicked, 1, 0);
             this.tableLayoutPanel5.Controls.Add(this.lbGroup, 2, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(4, 381);
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(4, 386);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.RowCount = 1;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(693, 27);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(697, 28);
             this.tableLayoutPanel5.TabIndex = 2;
             // 
             // lbMap
@@ -330,7 +332,7 @@
             this.lbMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbMap.Location = new System.Drawing.Point(3, 0);
             this.lbMap.Name = "lbMap";
-            this.lbMap.Size = new System.Drawing.Size(167, 27);
+            this.lbMap.Size = new System.Drawing.Size(168, 28);
             this.lbMap.TabIndex = 0;
             this.lbMap.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -339,9 +341,9 @@
             this.lbCurrentGrid.AutoSize = true;
             this.lbCurrentGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbCurrentGrid.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbCurrentGrid.Location = new System.Drawing.Point(522, 0);
+            this.lbCurrentGrid.Location = new System.Drawing.Point(525, 0);
             this.lbCurrentGrid.Name = "lbCurrentGrid";
-            this.lbCurrentGrid.Size = new System.Drawing.Size(168, 27);
+            this.lbCurrentGrid.Size = new System.Drawing.Size(169, 28);
             this.lbCurrentGrid.TabIndex = 1;
             this.lbCurrentGrid.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -350,9 +352,9 @@
             this.lbObjectClicked.AutoSize = true;
             this.lbObjectClicked.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbObjectClicked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbObjectClicked.Location = new System.Drawing.Point(176, 0);
+            this.lbObjectClicked.Location = new System.Drawing.Point(177, 0);
             this.lbObjectClicked.Name = "lbObjectClicked";
-            this.lbObjectClicked.Size = new System.Drawing.Size(167, 27);
+            this.lbObjectClicked.Size = new System.Drawing.Size(168, 28);
             this.lbObjectClicked.TabIndex = 2;
             this.lbObjectClicked.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -361,9 +363,9 @@
             this.lbGroup.AutoSize = true;
             this.lbGroup.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbGroup.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbGroup.Location = new System.Drawing.Point(349, 0);
+            this.lbGroup.Location = new System.Drawing.Point(351, 0);
             this.lbGroup.Name = "lbGroup";
-            this.lbGroup.Size = new System.Drawing.Size(167, 27);
+            this.lbGroup.Size = new System.Drawing.Size(168, 28);
             this.lbGroup.TabIndex = 3;
             this.lbGroup.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 

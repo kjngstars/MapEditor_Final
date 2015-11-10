@@ -12,5 +12,5 @@ namespace MapEditor
         public int _x { get; set; }
         public int _y { get; set; }
         public Bitmap _texture { get; set; }
-    }
+    }  
 }

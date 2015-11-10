@@ -26,6 +26,7 @@ namespace MapEditor
         List<GameObject> _listGameObject = new List<GameObject>();
         List<GameObject> _listGameObjectLoaded = new List<GameObject>();
         List<Rectangle> _listGroupedObject = new List<Rectangle>();
+        List<NodeObject> _allGameObject = new List<NodeObject>();
         QuadTree _quadTree4Grid;
 
         int _mapWidth;
@@ -56,6 +57,7 @@ namespace MapEditor
 
         PictureBox _selectedTileToDelete = null;
         PictureBox _previousTileSelected = null;
+        PictureBox _selectedTileObject = null;
         Rectangle _rectGroupedObject = Rectangle.Empty;
 
         Rectangle _currentGrid;
@@ -81,118 +83,137 @@ namespace MapEditor
         public Form1()
         {
             InitializeComponent();
-            loadItem();
+            loadObjectItem();
         }
 
         private void btnLoadMap_Click(object sender, EventArgs e)
         {
-            //Bitmap tileSet = Image.FromFile("tileset.png");
-            OpenFileDialog f = new OpenFileDialog();
-            f.Filter = "txt(*.txt) | *.txt";
-
-            if (f.ShowDialog() == DialogResult.OK)
+            try
             {
-                using (XmlReader reader = XmlReader.Create(f.FileName.ToString()))
+
+                OpenFileDialog f = new OpenFileDialog();
+                f.Filter = "txt(*.txt) | *.txt";
+
+                if (f.ShowDialog() == DialogResult.OK)
                 {
-                    while (reader.Read())
+                    using (XmlReader reader = XmlReader.Create(f.FileName.ToString()))
                     {
-                        // Only detect start elements.
-                        if (reader.IsStartElement())
+                        while (reader.Read())
                         {
-                            // Get element name and switch on it.
-                            switch (reader.Name)
+                            // Only detect start elements.
+                            if (reader.IsStartElement())
                             {
-                                case "map":
-                                    // Detect this element.
-                                    string attribute1 = reader["w"];
-                                    if (attribute1 != null)
-                                    {
-                                        _mapWidth = int.Parse(attribute1);
-                                    }
+                                // Get element name and switch on it.
+                                switch (reader.Name)
+                                {
+                                    case "map":
+                                        // Detect this element.
+                                        string attribute1 = reader["w"];
+                                        if (attribute1 != null)
+                                        {
+                                            _mapWidth = int.Parse(attribute1);
+                                        }
 
-                                    string attribute3 = reader["h"];
-                                    if (attribute1 != null)
-                                    {
-                                        _mapHeight = int.Parse(attribute3);
-                                    }
+                                        string attribute3 = reader["h"];
+                                        if (attribute1 != null)
+                                        {
+                                            _mapHeight = int.Parse(attribute3);
+                                        }
 
-                                    string attribute2 = reader["s"];
+                                        string attribute2 = reader["s"];
 
-                                    if (attribute2 != null)
-                                    {
-                                        _mapSize = int.Parse(attribute2);
-                                    }
-                                    break;
-                                case "tile":
-                                    string attribute = reader["t"];
-                                    if (attribute != null)
-                                    {
-                                        _listTileMap.Add(int.Parse(attribute));
-                                        _set.Add(int.Parse(attribute));
-                                    }
-                                    break;
+                                        if (attribute2 != null)
+                                        {
+                                            _mapSize = int.Parse(attribute2);
+                                        }
+                                        break;
+                                    case "tile":
+                                        string attribute = reader["t"];
+                                        if (attribute != null)
+                                        {
+                                            _listTileMap.Add(int.Parse(attribute));
+                                            _set.Add(int.Parse(attribute));
+                                        }
+                                        break;
+                                }
                             }
                         }
-                    }
-                }  //end using
+                    }  //end using
 
-                _listUniqueTile = _set.ToList();
+                    _listUniqueTile = _set.ToList();
 
-                //load map           
-                for (int j = 0; j <= _mapSize; j++)
-                {
-
-                    for (int i = 0; i < _listTileMap.Count(); i++)
+                    //load map           
+                    for (int j = 0; j <= _mapSize; j++)
                     {
-                        int x = ((i % _mapWidth) * _tileSize) + (_mapWidth * _tileSize) * j;
-                        int y = (i / _mapWidth) * _tileSize;
-                        int index = _listUniqueTile.FindIndex(u => u == _listTileMap.ElementAt(i));
 
-                        Rectangle r = new Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
-                        Bitmap clone = _tileSet.Clone(r, _tileSet.PixelFormat);
-                        _listTile4Drawing.Add(new Tile { _x = x, _y = y, _texture = clone });
+                        for (int i = 0; i < _listTileMap.Count(); i++)
+                        {
+                            int x = ((i % _mapWidth) * _tileSize) + (_mapWidth * _tileSize) * j;
+                            int y = (i / _mapWidth) * _tileSize;
+                            int index = _listUniqueTile.FindIndex(u => u == _listTileMap.ElementAt(i));
+
+                            Rectangle r = new Rectangle { X = index * _tileSize, Y = 0, Width = _tileSize, Height = _tileSize };
+                            Bitmap clone = _tileSet.Clone(r, _tileSet.PixelFormat);
+                            _listTile4Drawing.Add(new Tile { _x = x, _y = y, _texture = clone });
+
+                        }
                     }
-                }
 
-                Image bg = makeMapBackground(_listTile4Drawing);
-                pictureBox1.Image = bg;
+                    Image bg = makeMapBackground(_listTile4Drawing);
+                    pictureBox1.Image = bg;
 
-                //save grid object
-                int nGridColumn = bg.Width / _gridSize;
-                int nGridRow = bg.Height / _gridSize;
-                int count = 1;
+                    //save grid object
+                    int nGridColumn = bg.Width / _gridSize;
+                    int nGridRow = bg.Height / _gridSize;
+                    int count = 1;
 
-                for (int i = 1; i <= nGridRow; i++)
-                {
-                    for (int j = 1; j <= nGridColumn; j++)
+                    for (int i = 1; i <= nGridRow; i++)
                     {
-                        int x = (j - 1) * _gridSize;
-                        int y = (i - 1) * _gridSize;
-                        System.Drawing.Rectangle r = new System.Drawing.Rectangle(x, y, _gridSize, _gridSize);
-                        _listGridObject.Add(new NodeObject { _boxObject = r, _objectID = count });
-                        count++;
+                        for (int j = 1; j <= nGridColumn; j++)
+                        {
+                            int x = (j - 1) * _gridSize;
+                            int y = (i - 1) * _gridSize;
+                            System.Drawing.Rectangle r = new System.Drawing.Rectangle(x, y, _gridSize, _gridSize);
+                            _listGridObject.Add(new NodeObject { _boxObject = r, _objectID = count });
+                            count++;
+                        }
                     }
-                }
 
-                //show map info
-                lbMap.Text = "Map: " + bg.Width.ToString() + " x " + bg.Height.ToString();
+                    //show map info
+                    lbMap.Text = "Map: " + bg.Width.ToString() + " x " + bg.Height.ToString();
 
-                //quadtree grid
-                _quadTree4Grid = new QuadTree(0, 0, bg.Width, bg.Height, _listGridObject, _gridSize);
+                    //quadtree grid
+                    _quadTree4Grid = new QuadTree(0, 0, bg.Width, bg.Height, _listGridObject, _gridSize);
 
-            } //end if
-        }
+                } //end if
 
-        private void btnLoadObject_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog f = new OpenFileDialog();
-            if (f.ShowDialog() == DialogResult.OK)
+            }
+            catch (Exception)
             {
-                _tileSet = new Bitmap(f.FileName.ToString());
+                MessageBox.Show("Invalid map file", "Error", MessageBoxButtons.OK);
+                return;              
             }
         }
 
-        private void loadItem()
+        private void btnLoadTileSet_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                OpenFileDialog f = new OpenFileDialog();
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    _tileSet = new Bitmap(f.FileName.ToString());
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Invalid TileSet file", "Error", MessageBoxButtons.OK);
+                return;
+            }
+            
+        }
+
+        private void loadObjectItem()
         {
             int idCount = 1;
 
@@ -205,14 +226,35 @@ namespace MapEditor
                 tile.BackColor = Color.Transparent;
                 tile.Tag = idCount;
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                tile.Image = new Bitmap(tilePath);
+                Image img = new Bitmap(tilePath);
+                tile.Image = img;
+                tile.Click += Tile_Click;
+                
+                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
+                idCount++;
+
+                flowLayoutPanel1.Controls.Add(tile);
+
+            }
+
+            //flip some grounds-2
+
+            for (int i = 0; i < 8; i++)
+            {
+                string tilePath = "tile/flip/" + i + ".png";
+
+                PictureBox tile = new PictureBox();
+                tile.BackColor = Color.Transparent;
+                tile.Tag = idCount;
+                tile.SizeMode = PictureBoxSizeMode.AutoSize;
+                Image img = new Bitmap(tilePath);                
+                tile.Image = img;
                 tile.Click += Tile_Click;
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
 
                 flowLayoutPanel1.Controls.Add(tile);
-
             }
 
             //ground 2
@@ -231,7 +273,7 @@ namespace MapEditor
                 idCount++;
 
                 flowLayoutPanel1.Controls.Add(tile);
-            }
+            }          
 
             //grass
             for (int i = 0; i < 7; i++)
@@ -563,6 +605,34 @@ namespace MapEditor
 
                 }
             }
+
+            if (_selectedTileObject != null)
+            {
+                //arrows key
+                if (e.KeyCode == Keys.Right)
+                {
+                    _selectedTileObject.Location = new Point(_selectedTileObject.Location.X + 1, _selectedTileObject.Location.Y);
+                    updatePosition(_selectedObjectID, _selectedTileObject.Location.X, _selectedTileObject.Location.Y);
+                }
+
+                if (e.KeyCode == Keys.Left)
+                {
+                    _selectedTileObject.Location = new Point(_selectedTileObject.Location.X - 1, _selectedTileObject.Location.Y);
+                    updatePosition(_selectedObjectID, _selectedTileObject.Location.X, _selectedTileObject.Location.Y);
+                }
+
+                if (e.KeyCode == Keys.Up)
+                {
+                    _selectedTileObject.Location = new Point(_selectedTileObject.Location.X, _selectedTileObject.Location.Y - 1);
+                    updatePosition(_selectedObjectID, _selectedTileObject.Location.X, _selectedTileObject.Location.Y);
+                }
+
+                if (e.KeyCode == Keys.Down)
+                {
+                    _selectedTileObject.Location = new Point(_selectedTileObject.Location.X, _selectedTileObject.Location.Y + 1);
+                    updatePosition(_selectedObjectID, _selectedTileObject.Location.X, _selectedTileObject.Location.Y);
+                }
+            }
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -640,8 +710,7 @@ namespace MapEditor
                 setObject.DoubleClick += Pic_DoubleClick;
                 setObject.Click += (object s, EventArgs ee) =>
                 {
-                    PictureBox p = (PictureBox)s;
-                    _selectedTileToDelete = p;
+                    PictureBox p = (PictureBox)s;                  
 
                     MouseEventArgs oe = (MouseEventArgs)ee;
                     if (oe.Button == MouseButtons.Right)
@@ -654,7 +723,7 @@ namespace MapEditor
                             {
                                 if (item.Contains(p.Bounds))
                                 {
-                                    lbGroup.Text = "Rect: " + _groupRect.X + " " + _groupRect.Y + " " + _groupRect.Width + " " + _groupRect.Height;
+                                    lbGroup.Text = "Group: " + item.X + " " + item.Y + " " + item.Width + " " + item.Height;
                                     _rectGroupedObject = item;
                                     pictureBox1.Invalidate();
                                     break;
@@ -683,6 +752,11 @@ namespace MapEditor
                             if (p.BorderStyle == BorderStyle.None)
                             {
                                 p.BorderStyle = BorderStyle.FixedSingle;
+                                panelDesign.Focus();
+                               
+                                _selectedTileToDelete = p;
+                                _selectedTileObject = p;
+
                                 _selectedObjectID = objectID;
                                 lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y + " " + (p.Width - 2) + " " + (p.Height - 2);
                             }
@@ -690,7 +764,9 @@ namespace MapEditor
                             {
                                 p.BorderStyle = BorderStyle.None;
                                 lbObjectClicked.Text = "";
-                                //_selectedObjectID = 0;
+                                
+                                _selectedTileToDelete = null;
+                                _selectedTileObject = null;
                             }
                         }
                     }
@@ -800,11 +876,11 @@ namespace MapEditor
 
         private void saveQuadtreeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<NodeObject> allGameObject = new List<NodeObject>();
+            _allGameObject = new List<NodeObject>();
 
             foreach (GameObject item in _listGameObject)
             {
-                allGameObject.Add(new NodeObject
+                _allGameObject.Add(new NodeObject
                 {
                     _objectID = item._id,
                     _boxObject = new System.Drawing.Rectangle(item._x, item._y, item._width, item._height)
@@ -812,7 +888,7 @@ namespace MapEditor
             }
 
             //create quadtree
-            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, allGameObject, 400);
+            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, _allGameObject, 400);
 
             SaveFileDialog s = new SaveFileDialog();
             s.Filter = "txt(*.txt) | *.txt";
@@ -911,19 +987,22 @@ namespace MapEditor
 
         private void btnLoadObjectFile_Click(object sender, EventArgs e)
         {
-            _listGameObject.Clear();
-
-            foreach (var item in _listPictureBox)
+            try
             {
-                pictureBox1.Controls.Remove(item);
-            }
-
+                       
             OpenFileDialog f = new OpenFileDialog();
             f.Filter = "txt(*.txt) | *.txt";
 
             if (f.ShowDialog() == DialogResult.OK)
             {
                 _currentLoadedMap = f.FileName;
+
+                //clear design stuffs
+                _listGameObject.Clear();
+                foreach (var item in _listPictureBox)
+                {
+                    pictureBox1.Controls.Remove(item);
+                }
 
                 string type = "", size = "", pos = "", n = "", tPos = "", tSize = "";
                 int x = 0, y = 0, width = 0, height = 0;
@@ -1072,6 +1151,13 @@ namespace MapEditor
                 return;
             }
 
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Invalid object file", "Error", MessageBoxButtons.OK);
+                return;
+            }
+
             _currentID = _listGameObjectLoaded.Max(u => u._id);
 
             //draw object
@@ -1080,7 +1166,7 @@ namespace MapEditor
             foreach (GameObject item in _listGameObject)
             {
                 string path;
-
+                
                 if (item._group == null)
                 {
                     path = _listPathObject.Find(u => u.Item1 == item._type).Item2;
@@ -1089,7 +1175,10 @@ namespace MapEditor
                 else
                 {
                     //add to list group rectangle
-                    _listGroupedObject.Add(new Rectangle(item._x, item._y, item._width, item._height));
+                    if (item._group.Count() > 1)
+                    {
+                        _listGroupedObject.Add(new Rectangle(item._x, item._y, item._width, item._height));
+                    }
 
                     foreach (SubObject o in item._group)
                     {
@@ -1297,17 +1386,38 @@ namespace MapEditor
                         int maxY = l.Max(i => i._y);
                         int width = maxX - minX + l.First()._width;
                         int height = maxY - minY + l.First()._height;
+                        int nRows = height / l.First()._height;
+                        int nColumns = width / l.First()._width;
 
-                        _listSubObject.Add(new SubObject
+                        for (int i = 0; i < nRows; i++)
                         {
-                            _x = minX,
-                            _y = minY,
-                            _width = width,
-                            _height = height,
-                            _classify = SubObject.ObjectClassify.Sequences,
-                            _type = l.First()._type,
-                            _n = l.Count()
-                        });
+                            if (nColumns == 1 && nRows != 1)
+                            {
+                                _listSubObject.Add(new SubObject
+                                {
+                                    _x = minX,
+                                    _y = minY + i * l.First()._height,
+                                    _width = width,
+                                    _height = height,
+                                    _classify = SubObject.ObjectClassify.Single,
+                                    _type = l.First()._type,
+                                    _n = nColumns
+                                });
+                            }
+                            else
+                            {
+                                _listSubObject.Add(new SubObject
+                                {
+                                    _x = minX,
+                                    _y = minY + i * l.First()._height,
+                                    _width = width,
+                                    _height = height,
+                                    _classify = SubObject.ObjectClassify.Sequences,
+                                    _type = l.First()._type,
+                                    _n = nColumns
+                                });
+                            }
+                        }
                     }
                 }
             }
@@ -1335,7 +1445,7 @@ namespace MapEditor
             pic.Click += (object s, EventArgs ee) =>
             {
                 PictureBox p = (PictureBox)s;
-                _selectedTileToDelete = p;
+                
 
                 MouseEventArgs oe = (MouseEventArgs)ee;
                 if (oe.Button == MouseButtons.Right)
@@ -1343,14 +1453,13 @@ namespace MapEditor
                     if (_highlightSelectedGroup == false)
                     {
 
-
                         _highlightSelectedGroup = true;
 
                         foreach (Rectangle i in _listGroupedObject)
                         {
                             if (i.Contains(p.Bounds))
                             {
-                                lbGroup.Text = "Rect: " + _groupRect.X + " " + _groupRect.Y + " " + _groupRect.Width + " " + _groupRect.Height;
+                                lbGroup.Text = "Group: " + i.X + " " + i.Y + " " + i.Width + " " + i.Height;
                                 _rectGroupedObject = i;
                                 pictureBox1.Invalidate();
                                 break;
@@ -1381,6 +1490,11 @@ namespace MapEditor
                         if (p.BorderStyle == BorderStyle.None)
                         {
                             p.BorderStyle = BorderStyle.FixedSingle;
+
+                            _selectedTileToDelete = p;
+                            _selectedTileObject = p;
+                            panelDesign.Focus();
+                            
                             _selectedObjectID = id;
                             lbObjectClicked.Text = "Object: " + p.Location.X + " " + p.Location.Y + " " + (p.Width - 2) + " " + (p.Height - 2);
                         }
@@ -1388,7 +1502,9 @@ namespace MapEditor
                         {
                             p.BorderStyle = BorderStyle.None;
                             lbObjectClicked.Text = "";
-                            //_selectedObjectID = 0;
+                            
+                            _selectedTileToDelete = null;
+                            _selectedTileObject = null;
                         }
                     }
                 }
@@ -1396,6 +1512,18 @@ namespace MapEditor
             };
             _listPictureBox.Add(pic);
             pictureBox1.Controls.Add(pic);
+        }
+
+        private void updatePosition(int id,int x,int y)
+        {
+            int index = _listGameObject.FindIndex(o => o._id == id);
+
+            if (index != -1)
+            {
+                GameObject gameObject = _listGameObject.ElementAt(index);
+                gameObject._x = x;
+                gameObject._y = y;
+            }
         }
     }
 }
