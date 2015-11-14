@@ -51,12 +51,12 @@
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panelDesign = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.lbMap = new System.Windows.Forms.Label();
-            this.lbCurrentGrid = new System.Windows.Forms.Label();
-            this.lbObjectClicked = new System.Windows.Forms.Label();
-            this.lbGroup = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.lbGroup = new System.Windows.Forms.Label();
+            this.lbObjectClicked = new System.Windows.Forms.Label();
+            this.lbCurrentGrid = new System.Windows.Forms.Label();
+            this.lbMap = new System.Windows.Forms.Label();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -144,7 +144,7 @@
             this.groupObjectToolStripMenuItem});
             this.modeToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.modeToolStripMenuItem.Name = "modeToolStripMenuItem";
-            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 31);
+            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 29);
             this.modeToolStripMenuItem.Text = "Mode";
             // 
             // gridToolStripMenuItem
@@ -203,7 +203,7 @@
             this.clearAllToolStripMenuItem});
             this.stuffToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.stuffToolStripMenuItem.Name = "stuffToolStripMenuItem";
-            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 31);
+            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
             this.stuffToolStripMenuItem.Text = "Stuff";
             // 
             // saveMapObjectToolStripMenuItem
@@ -306,6 +306,60 @@
             this.pictureBox1.MouseLeave += new System.EventHandler(this.pictureBox1_MouseLeave);
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.AutoScroll = true;
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(724, 5);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(274, 465);
+            this.flowLayoutPanel1.TabIndex = 1;
+            this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
+            // 
+            // lbGroup
+            // 
+            this.lbGroup.AutoSize = true;
+            this.lbGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbGroup.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbGroup.Location = new System.Drawing.Point(351, 0);
+            this.lbGroup.Name = "lbGroup";
+            this.lbGroup.Size = new System.Drawing.Size(168, 28);
+            this.lbGroup.TabIndex = 3;
+            this.lbGroup.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lbObjectClicked
+            // 
+            this.lbObjectClicked.AutoSize = true;
+            this.lbObjectClicked.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbObjectClicked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbObjectClicked.Location = new System.Drawing.Point(177, 0);
+            this.lbObjectClicked.Name = "lbObjectClicked";
+            this.lbObjectClicked.Size = new System.Drawing.Size(168, 28);
+            this.lbObjectClicked.TabIndex = 2;
+            this.lbObjectClicked.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lbCurrentGrid
+            // 
+            this.lbCurrentGrid.AutoSize = true;
+            this.lbCurrentGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbCurrentGrid.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbCurrentGrid.Location = new System.Drawing.Point(525, 0);
+            this.lbCurrentGrid.Name = "lbCurrentGrid";
+            this.lbCurrentGrid.Size = new System.Drawing.Size(169, 28);
+            this.lbCurrentGrid.TabIndex = 1;
+            this.lbCurrentGrid.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lbMap
+            // 
+            this.lbMap.AutoSize = true;
+            this.lbMap.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbMap.Location = new System.Drawing.Point(3, 0);
+            this.lbMap.Name = "lbMap";
+            this.lbMap.Size = new System.Drawing.Size(168, 28);
+            this.lbMap.TabIndex = 0;
+            this.lbMap.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // tableLayoutPanel5
             // 
             this.tableLayoutPanel5.ColumnCount = 4;
@@ -324,60 +378,6 @@
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel5.Size = new System.Drawing.Size(697, 28);
             this.tableLayoutPanel5.TabIndex = 2;
-            // 
-            // lbMap
-            // 
-            this.lbMap.AutoSize = true;
-            this.lbMap.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbMap.Location = new System.Drawing.Point(3, 0);
-            this.lbMap.Name = "lbMap";
-            this.lbMap.Size = new System.Drawing.Size(168, 28);
-            this.lbMap.TabIndex = 0;
-            this.lbMap.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lbCurrentGrid
-            // 
-            this.lbCurrentGrid.AutoSize = true;
-            this.lbCurrentGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbCurrentGrid.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbCurrentGrid.Location = new System.Drawing.Point(525, 0);
-            this.lbCurrentGrid.Name = "lbCurrentGrid";
-            this.lbCurrentGrid.Size = new System.Drawing.Size(169, 28);
-            this.lbCurrentGrid.TabIndex = 1;
-            this.lbCurrentGrid.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // lbObjectClicked
-            // 
-            this.lbObjectClicked.AutoSize = true;
-            this.lbObjectClicked.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbObjectClicked.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbObjectClicked.Location = new System.Drawing.Point(177, 0);
-            this.lbObjectClicked.Name = "lbObjectClicked";
-            this.lbObjectClicked.Size = new System.Drawing.Size(168, 28);
-            this.lbObjectClicked.TabIndex = 2;
-            this.lbObjectClicked.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lbGroup
-            // 
-            this.lbGroup.AutoSize = true;
-            this.lbGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbGroup.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbGroup.Location = new System.Drawing.Point(351, 0);
-            this.lbGroup.Name = "lbGroup";
-            this.lbGroup.Size = new System.Drawing.Size(168, 28);
-            this.lbGroup.TabIndex = 3;
-            this.lbGroup.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.AutoScroll = true;
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(724, 5);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(274, 465);
-            this.flowLayoutPanel1.TabIndex = 1;
-            this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
             // Form1
             // 
@@ -411,7 +411,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem modeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
@@ -435,6 +434,7 @@
         private System.Windows.Forms.Label lbCurrentGrid;
         private System.Windows.Forms.Label lbObjectClicked;
         private System.Windows.Forms.Label lbGroup;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
     }
 }
 

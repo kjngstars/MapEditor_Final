@@ -216,6 +216,12 @@ namespace MapEditor
         private void loadObjectItem()
         {
             int idCount = 1;
+            ToolTip tooltip = new ToolTip();
+            
+            tooltip.AutoPopDelay = 5000;
+            tooltip.InitialDelay = 100;
+            tooltip.ReshowDelay = 500;            
+            
 
             //ground 1
             for (int i = 0; i < 41; i++)
@@ -229,7 +235,8 @@ namespace MapEditor
                 Image img = new Bitmap(tilePath);
                 tile.Image = img;
                 tile.Click += Tile_Click;
-                
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
+
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
 
@@ -250,6 +257,7 @@ namespace MapEditor
                 Image img = new Bitmap(tilePath);                
                 tile.Image = img;
                 tile.Click += Tile_Click;
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
@@ -268,6 +276,7 @@ namespace MapEditor
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
                 tile.Image = new Bitmap(tilePath);
                 tile.Click += Tile_Click;
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
@@ -286,6 +295,7 @@ namespace MapEditor
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
                 tile.Image = new Bitmap(tilePath);
                 tile.Click += Tile_Click;
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
@@ -304,6 +314,7 @@ namespace MapEditor
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
                 tile.Image = new Bitmap(tilePath);
                 tile.Click += Tile_Click;
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
@@ -322,6 +333,7 @@ namespace MapEditor
                 tile.SizeMode = PictureBoxSizeMode.AutoSize;
                 tile.Image = new Bitmap(tilePath);
                 tile.Click += Tile_Click;
+                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
 
                 _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
                 idCount++;
@@ -515,7 +527,6 @@ namespace MapEditor
         {
             _timer1.Stop();
             _timer1.Start();
-
 
             _eX = e.X;
             _eY = e.Y;
@@ -1388,36 +1399,45 @@ namespace MapEditor
                         int height = maxY - minY + l.First()._height;
                         int nRows = height / l.First()._height;
                         int nColumns = width / l.First()._width;
-
+                        
+                        List<GameObject> listSubGroup = new List<GameObject>();
                         for (int i = 0; i < nRows; i++)
                         {
-                            if (nColumns == 1 && nRows != 1)
+                            int yCoordinate4EachRow = minY + l.First()._height * i;
+
+                            var listItem = l.Where(o => o._y == yCoordinate4EachRow);
+                            listSubGroup = listItem.ToList();
+
+                            if (listSubGroup.Count == 1)
                             {
                                 _listSubObject.Add(new SubObject
                                 {
-                                    _x = minX,
-                                    _y = minY + i * l.First()._height,
-                                    _width = width,
-                                    _height = height,
+                                    _x = listSubGroup.Min(u => u._x),
+                                    _y = yCoordinate4EachRow,
+                                    _width = listSubGroup.First()._width,
+                                    _height = listSubGroup.First()._height,
                                     _classify = SubObject.ObjectClassify.Single,
-                                    _type = l.First()._type,
-                                    _n = nColumns
+                                    _type = listSubGroup.First()._type,
                                 });
                             }
                             else
                             {
-                                _listSubObject.Add(new SubObject
+                                if (listSubGroup.Count > 1)
                                 {
-                                    _x = minX,
-                                    _y = minY + i * l.First()._height,
-                                    _width = width,
-                                    _height = height,
-                                    _classify = SubObject.ObjectClassify.Sequences,
-                                    _type = l.First()._type,
-                                    _n = nColumns
-                                });
+                                    _listSubObject.Add(new SubObject
+                                    {
+                                        _x = listSubGroup.Min(u => u._x),
+                                        _y = yCoordinate4EachRow,
+                                        _width = listSubGroup.First()._width * listSubGroup.Count,
+                                        _height = listSubGroup.First()._height,
+                                        _classify = SubObject.ObjectClassify.Sequences,
+                                        _type = listSubGroup.First()._type,
+                                        _n = listSubGroup.Count
+                                    });
+                                }
                             }
                         }
+                        
                     }
                 }
             }
