@@ -35,4 +35,22 @@ namespace MapEditor
         public ObjectClassify _classify { get; set; }
 
     }
+
+    public class EnemyObject
+    {
+        public enum Direction
+        {
+            Left = 1,
+            Right = 2
+        }
+        public int _id { get; set; }
+        public int _type { get; set; }
+        public Direction _direction { get; set; }
+        public int _x { get; set; }
+        public int _y { get; set; }
+        public int _width { get; set; }
+        public int _height { get; set; }
+        public int _patrolAreaWidth { get; set; }
+        public int _patrolAreaHeight { get; set; }
+    }
 }

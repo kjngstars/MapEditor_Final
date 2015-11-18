@@ -27,6 +27,7 @@ namespace MapEditor
         List<GameObject> _listGameObjectLoaded = new List<GameObject>();
         List<Rectangle> _listGroupedObject = new List<Rectangle>();
         List<NodeObject> _allGameObject = new List<NodeObject>();
+        List<EnemyObject> _listEnemyObject = new List<EnemyObject>();
         QuadTree _quadTree4Grid;
 
         int _mapWidth;
@@ -38,22 +39,21 @@ namespace MapEditor
         int _tileObjectWidth;
         int _tileObjectHeight;
         int _gridSize = 32;
-        int _objectTag;
+        int _selectedObjectTag;
         int _currentID = 1;
         int _selectedObjectID = 0;
-
         int _eX, _eY;
         int _posClickedX, _posClickedY;
 
         bool _mouseEdit = false;
         bool _editMode = false;
-
         bool _shiftKeyPressed = false;
         bool _enableGrid = false;
         bool _timeOutGridMovable = false;
         bool _selectedObjectHighlight = false;
         bool _enableSmartCursorDesign = true;
         bool _groupingObject = false;
+        bool _staticTab = true;        
 
         PictureBox _selectedTileToDelete = null;
         PictureBox _previousTileSelected = null;
@@ -79,6 +79,12 @@ namespace MapEditor
         bool _highlightSelectedGroup = false;
 
         string _currentLoadedMap = string.Empty;
+
+        enum TypeObject
+        {
+            Moveable,
+            Static,
+        }
 
         public Form1()
         {
@@ -216,53 +222,15 @@ namespace MapEditor
         private void loadObjectItem()
         {
             int idCount = 1;
-            ToolTip tooltip = new ToolTip();
-            
-            tooltip.AutoPopDelay = 5000;
-            tooltip.InitialDelay = 100;
-            tooltip.ReshowDelay = 500;            
-            
-
+             
             //ground 1
             for (int i = 0; i < 41; i++)
             {
                 string tilePath = "tile/ground1/" + i + ".png";
 
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                Image img = new Bitmap(tilePath);
-                tile.Image = img;
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
+                loadGameObject(tilePath, idCount,TypeObject.Static);
                 idCount++;
-
-                flowLayoutPanel1.Controls.Add(tile);
-
-            }
-
-            //flip some grounds-2
-
-            for (int i = 0; i < 8; i++)
-            {
-                string tilePath = "tile/flip/" + i + ".png";
-
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                Image img = new Bitmap(tilePath);                
-                tile.Image = img;
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
-                idCount++;
-
-                flowLayoutPanel1.Controls.Add(tile);
+                
             }
 
             //ground 2
@@ -270,18 +238,8 @@ namespace MapEditor
             {
                 string tilePath = "tile/ground2/" + i + ".png";
 
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                tile.Image = new Bitmap(tilePath);
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
-                idCount++;
-
-                flowLayoutPanel1.Controls.Add(tile);
+                loadGameObject(tilePath, idCount, TypeObject.Static);
+                idCount++;                
             }          
 
             //grass
@@ -289,18 +247,8 @@ namespace MapEditor
             {
                 string tilePath = "tile/grass/" + i + ".png";
 
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                tile.Image = new Bitmap(tilePath);
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
+                loadGameObject(tilePath, idCount, TypeObject.Static);
                 idCount++;
-
-                flowLayoutPanel1.Controls.Add(tile);
             }
 
             //ground 3
@@ -308,18 +256,8 @@ namespace MapEditor
             {
                 string tilePath = "tile/ground3/" + i + ".png";
 
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                tile.Image = new Bitmap(tilePath);
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
-                idCount++;
-
-                flowLayoutPanel1.Controls.Add(tile);
+                loadGameObject(tilePath, idCount, TypeObject.Static);
+                idCount++;               
             }
 
             //pipes
@@ -327,18 +265,16 @@ namespace MapEditor
             {
                 string tilePath = "tile/pipes/" + i + ".png";
 
-                PictureBox tile = new PictureBox();
-                tile.BackColor = Color.Transparent;
-                tile.Tag = idCount;
-                tile.SizeMode = PictureBoxSizeMode.AutoSize;
-                tile.Image = new Bitmap(tilePath);
-                tile.Click += Tile_Click;
-                tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
-
-                _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, tilePath));
+                loadGameObject(tilePath, idCount, TypeObject.Static);
                 idCount++;
+            }
 
-                flowLayoutPanel1.Controls.Add(tile);
+            //movable object
+            for (int i = 0; i < 3; i++)
+            {
+                string tilePath = "tile/movable/" + i + ".png";
+                loadGameObject(tilePath, idCount, TypeObject.Moveable);
+                idCount++;
             }
         }
 
@@ -373,42 +309,8 @@ namespace MapEditor
 
             _tileObjectWidth = tile.Width - 2;
             _tileObjectHeight = tile.Height - 2;
-            _objectTag = (int)(((PictureBox)sender).Tag);
+            _selectedObjectTag = (int)(((PictureBox)sender).Tag);
             flowLayoutPanel1.Invalidate();
-        }
-
-        private void panelDesign_MouseMove(object sender, MouseEventArgs e)
-        {
-            //panelDesign.Invalidate();
-            //_eX = e.X;
-            //_eY = e.Y;
-
-        }
-
-        private void panelDesign_MouseLeave(object sender, EventArgs e)
-        {
-            //_mouseEdit = false;
-            //panelDesign.Invalidate();
-        }
-
-        private void btnEdit_Click(object sender, EventArgs e)
-        {
-
-
-        }
-
-        private void panelDesign_MouseEnter(object sender, EventArgs e)
-        {
-            //_mouseEdit = true;
-        }
-
-        private void panelDesign_Paint(object sender, PaintEventArgs e)
-        {
-            //if (_mouseEdit)
-            //{
-            //    Graphics g = e.Graphics;
-            //    g.DrawRectangle(Pens.Red, _eX - 15, _eY - 15, _tileWidth, _tileHeight);
-            //}
         }
 
         private Bitmap MergeTwoImages(Image firstImage, Image secondImage)
@@ -609,7 +511,20 @@ namespace MapEditor
 
                     //remove from list object
                     int index = _listGameObject.FindIndex(item => item._id == _selectedObjectID);
-                    _listGameObject.RemoveAt(index);
+
+                    if (index != -1)
+                    {
+                        _listGameObject.RemoveAt(index);
+                    }
+                    else
+                    {
+                        index = _listEnemyObject.FindIndex(item => item._id == _selectedObjectID);
+                        if (index != -1)
+                        {
+                            _listEnemyObject.RemoveAt(index);
+                        }
+                    }
+
 
                     _selectedTileToDelete = null;
                     lbObjectClicked.Text = "";
@@ -710,11 +625,11 @@ namespace MapEditor
                 int objectID = _currentID++;
                 PictureBox setObject = new PictureBox();
                 setObject.SizeMode = PictureBoxSizeMode.AutoSize;
-
-                int index = _listPathObject.FindIndex(item => item.Item1 == _objectTag);
+                
+                int index = _listPathObject.FindIndex(item => item.Item1 == _selectedObjectTag);
                 string path = _listPathObject.ElementAt(index).Item2;
-
-                setObject.Tag = _objectTag;
+                
+                setObject.Tag = _selectedObjectTag;
                 Bitmap image = new Bitmap(path);
                 setObject.Image = image;
                 setObject.Location = new Point(_posClickedX - image.Width / 2, _posClickedY - image.Height / 2);
@@ -724,6 +639,7 @@ namespace MapEditor
                     PictureBox p = (PictureBox)s;                  
 
                     MouseEventArgs oe = (MouseEventArgs)ee;
+
                     if (oe.Button == MouseButtons.Right)
                     {
                         if (_highlightSelectedGroup == false)
@@ -785,15 +701,40 @@ namespace MapEditor
                 _listPictureBox.Add(setObject);
 
                 //add to list object
-                _listGameObject.Add(new GameObject
+
+                if (_staticTab == true)
                 {
-                    _id = objectID,
-                    _x = setObject.Location.X,
-                    _y = setObject.Location.Y,
-                    _width = setObject.Width,
-                    _height = setObject.Height,
-                    _type = (int)setObject.Tag
-                });
+                    _listGameObject.Add(new GameObject
+                    {
+                        _id = objectID,
+                        _x = setObject.Location.X,
+                        _y = setObject.Location.Y,
+                        _width = setObject.Width,
+                        _height = setObject.Height,
+                        _type = (int)setObject.Tag
+                    });
+                }
+                else
+                {
+                    EnemyObject.Direction direction;
+                    string dir = cbDirection.SelectedValue.ToString();
+
+                    direction = getDirection(dir);
+
+                    _listEnemyObject.Add(new EnemyObject
+                    {
+                        _id = objectID,
+                        _x = setObject.Location.X,
+                        _y = setObject.Location.Y,
+                        _width = setObject.Width,
+                        _height = setObject.Height,
+                        _direction = direction,
+                        _type = (int)setObject.Tag,
+                        _patrolAreaWidth = int.Parse(tbPatrolWidth.Text),
+                        _patrolAreaHeight=int.Parse(tbPatrolHeight.Text)
+                    });
+                }
+                
 
                 pictureBox1.Controls.Add(setObject);
 
@@ -816,6 +757,8 @@ namespace MapEditor
             _listGameObjectLoaded.Clear();
             _listPictureBox.Clear();
             _listGroupedObject.Clear();
+            _allGameObject.Clear();
+            _listEnemyObject.Clear();
 
             _currentLoadedMap = string.Empty;
             _editMode = false;
@@ -841,17 +784,6 @@ namespace MapEditor
 
             if (_timeOutGridMovable && _enableSmartCursorDesign)
             {
-                //if (_previousGrid != Rectangle.Empty &&
-                //    _previousGrid.Contains(pictureBox1.PointToClient(Cursor.Position))
-                //   && _stopCursorMovable)
-                //{
-                //    return;
-                //}
-
-                //int x = _currentGrid.X + _tileObjectWidth / 2;
-                //int y = _currentGrid.Y + _tileObjectHeight / 2;
-                //_pictureBoxCursorPosition = pictureBox1.PointToScreen(new Point(x, y));
-                //Cursor.Position = _pictureBoxCursorPosition;
 
                 if (_preRectPos != null &&
                     _preRectPos.Item1 == _rectSmartPosition.Item1 &&
@@ -876,11 +808,8 @@ namespace MapEditor
                 Cursor.Position = _pictureBoxCursorPosition;
 
                 _hightlightBorder = true;
-                //_previousGrid = _currentGrid;
-                pictureBox1.Invalidate();
-                //_timer2.Start();
-                //_stopCursorMovable = false;
-
+                
+                pictureBox1.Invalidate();                                
             }
 
         }
@@ -894,12 +823,60 @@ namespace MapEditor
                 _allGameObject.Add(new NodeObject
                 {
                     _objectID = item._id,
-                    _boxObject = new System.Drawing.Rectangle(item._x, item._y, item._width, item._height)
+                    _boxObject = new Rectangle(item._x, item._y, item._width, item._height)
                 });
             }
 
-            //create quadtree
-            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, _allGameObject, 400);
+            foreach (EnemyObject item in _listEnemyObject)
+            {
+                int x, y, width, height;
+
+                width = item._width + item._patrolAreaWidth;
+                height = item._height + item._patrolAreaHeight;
+
+                if (item._direction == EnemyObject.Direction.Left)
+                {
+                    if (item._patrolAreaWidth != 0 && item._patrolAreaHeight == 0)
+                    {
+                        x = item._x - item._patrolAreaWidth;
+                        y = item._y;
+                    }
+                    else if (item._patrolAreaWidth == 0 && item._patrolAreaHeight != 0)
+                    {
+                        x = item._x;
+                        y = item._y - item._patrolAreaHeight;
+                    }
+                    else
+                    {
+                        x = item._x;
+                        y = item._y;
+                    }
+
+                    
+                }
+                else
+                {
+                    if (item._patrolAreaWidth == 0 && item._patrolAreaHeight != 0)
+                    {
+                        x = item._x;
+                        y = item._y - item._patrolAreaHeight;
+                    }
+                    else
+                    {
+                        x = item._x;
+                        y = item._y;
+                    }
+                }
+
+                _allGameObject.Add(new NodeObject
+                {
+                    _objectID = item._id,
+                    _boxObject = new Rectangle(x, y, width, height)
+                });
+            }
+
+            //create quadtree with maximum object per node
+            QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, _allGameObject);
 
             SaveFileDialog s = new SaveFileDialog();
             s.Filter = "txt(*.txt) | *.txt";
@@ -997,7 +974,7 @@ namespace MapEditor
         }
 
         private void btnLoadObjectFile_Click(object sender, EventArgs e)
-        {
+        {           
             try
             {
                        
@@ -1181,7 +1158,7 @@ namespace MapEditor
                 if (item._group == null)
                 {
                     path = _listPathObject.Find(u => u.Item1 == item._type).Item2;
-                    drawObject(path, item._x, item._y, item._id);
+                    drawObject(path, item._x, item._y, item._id, false);
                 }
                 else
                 {
@@ -1196,7 +1173,7 @@ namespace MapEditor
                         if (o._classify == SubObject.ObjectClassify.Single)
                         {
                             path = _listPathObject.Find(u => u.Item1 == o._type).Item2;
-                            drawObject(path, o._x, o._y, item._id);
+                            drawObject(path, o._x, o._y, item._id, false);
                         }
                         else
                         {
@@ -1205,7 +1182,7 @@ namespace MapEditor
 
                             for (int i = 0; i < o._n; i++)
                             {
-                                drawObject(path, i * width + o._x, o._y, item._id);
+                                drawObject(path, i * width + o._x, o._y, item._id, false);
                             }
                         }
                     }
@@ -1454,12 +1431,205 @@ namespace MapEditor
             yh = int.Parse(str.Substring(commaIndex + 1, lastClosedBrace - commaIndex - 1));
         }
 
-        private void drawObject(string path, int x, int y, int id)
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Dictionary<string, string> comboSource = new Dictionary<string, string>();
+
+            comboSource.Add("1", "Left");
+            comboSource.Add("2", "Right");
+
+            cbDirection.DataSource = new BindingSource(comboSource, null);
+            cbDirection.DisplayMember = "Value";
+            cbDirection.ValueMember = "Key";
+
+            cbDirection.SelectedIndex = 0;
+
+            //init default textbox value
+            tbPatrolWidth.Text = "0";
+            tbPatrolHeight.Text = "0";
+
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedTab == tabControl1.TabPages[1])
+            {
+                _staticTab = false;
+            }
+            else
+            {
+                if (tabControl1.SelectedTab == tabControl1.TabPages[0])
+                {
+                    _staticTab = true;
+                }
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (_selectedTileObject != null)
+            {
+                var o = _listEnemyObject.Find(i => i._id == _selectedObjectID);
+
+                EnemyObject.Direction direction;
+                
+                string dir = cbDirection.SelectedValue.ToString();
+                direction = getDirection(dir);
+
+                if (o._direction != direction)
+                {
+                    _selectedTileObject.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                }
+                                
+                EnemyObject enemy = _listEnemyObject.Find(i => i._id == _selectedObjectID);
+
+                enemy._patrolAreaWidth = int.Parse(tbPatrolWidth.Text);
+                enemy._patrolAreaHeight = int.Parse(tbPatrolHeight.Text);
+                enemy._direction = direction;
+            }
+        }
+
+        private void btnLoadEnemy_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                OpenFileDialog f = new OpenFileDialog();
+                f.Filter = "txt(*.txt) | *.txt";
+
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    StreamReader streamReader = new StreamReader(f.FileName);
+                    using (XmlReader reader = XmlReader.Create(streamReader))
+                    {
+                        reader.ReadStartElement();
+
+                        while (reader.Read())
+                        {
+                            if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "enemies")
+                            {
+                                break;
+                            }
+
+                            string id = reader.GetAttribute(0);
+
+                            moveToNextElement(reader);
+                            string type = reader.ReadElementContentAsString();
+
+                            moveToNextElement(reader); ;
+                            string pos = reader.ReadElementContentAsString();
+
+                            moveToNextElement(reader);
+                            string size = reader.ReadElementContentAsString();
+                            
+                            moveToNextElement(reader);
+                            string patrolWidth = reader.ReadElementContentAsString();
+
+                            moveToNextElement(reader);
+                            string patrolHeight = reader.ReadElementContentAsString();
+
+                            moveToNextElement(reader);
+                            string direction = reader.ReadElementContentAsString();
+
+                            int x = 0, y = 0;
+                            int width = 0, height = 0;
+
+                            parseObjectElement(ref x, ref y, pos);
+                            parseObjectElement(ref width, ref height, size);
+
+                            //add to list enemy
+                            _listEnemyObject.Add(new EnemyObject
+                            {
+                                _id = int.Parse(id),
+                                _x = x,
+                                _y = y,
+                                _width=width,
+                                _height=height,
+                                _patrolAreaWidth = int.Parse(patrolWidth),
+                                _patrolAreaHeight = int.Parse(patrolHeight),
+                                _type = int.Parse(type),
+                                _direction = getDirection(direction)
+                            });
+
+                            //read end node "enemy"
+                            reader.ReadEndElement();                            
+                             
+                        }
+                    }   //end using              
+                } //end if
+
+                //draw object
+                foreach (EnemyObject item in _listEnemyObject)
+                {
+                    string path = (_listPathObject.Find(u => u.Item1 == item._type)).Item2;
+                    
+                    if (item._direction == EnemyObject.Direction.Right)
+                    {
+                        drawObject(path, item._x, item._y, item._id, true);
+                    }
+                    else
+                    {
+                        drawObject(path, item._x, item._y, item._id, false);
+                    }
+                    
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Invalid map file", "Error", MessageBoxButtons.OK);
+            }
+        }
+
+        private void saveMapEnemyToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            SaveFileDialog s = new SaveFileDialog();
+            s.Filter = "txt(*.txt) | *.txt";
+
+            if (s.ShowDialog() == DialogResult.OK)
+            {
+                XmlWriterSettings setting = new XmlWriterSettings();
+                setting.Indent = true;
+
+                XmlWriter writer = XmlWriter.Create(s.FileName, setting);
+                writer.WriteStartDocument();
+                writer.WriteStartElement("enemies");
+               
+                foreach (EnemyObject enemy in _listEnemyObject)
+                {
+                    int direction = (int)enemy._direction;
+
+                    writer.WriteStartElement("enemy");
+                    writer.WriteAttributeString("id", enemy._id.ToString());
+                    writer.WriteElementString("t", enemy._type.ToString());
+                    writer.WriteElementString("pos", "{" + enemy._x + "," + enemy._y + "}");
+                    writer.WriteElementString("size", "{" + enemy._width + "," + enemy._height + "}");
+                    writer.WriteElementString("patrolwidth", enemy._patrolAreaWidth.ToString());
+                    writer.WriteElementString("patrolheight", enemy._patrolAreaHeight.ToString());
+                    writer.WriteElementString("direction", direction.ToString());
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+
+                writer.Flush();
+                writer.Close();
+
+            }
+
+        }
+
+        private void drawObject(string path, int x, int y, int id, bool flip)
         {
             PictureBox pic = new PictureBox();
             pic.SizeMode = PictureBoxSizeMode.AutoSize;
             Bitmap image = new Bitmap(path);
-            pic.Image = image;
+
+            if (flip)
+            {
+                image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            }
+
+            pic.Image = image;            
             pic.Location = new Point(x, y);
             pic.DoubleClick += Pic_DoubleClick;
             pic.Click += (object s, EventArgs ee) =>
@@ -1543,6 +1713,70 @@ namespace MapEditor
                 GameObject gameObject = _listGameObject.ElementAt(index);
                 gameObject._x = x;
                 gameObject._y = y;
+            }
+            else
+            {
+                if (index == -1)
+                {
+                    index = _listEnemyObject.FindIndex(u => u._id == id);
+                    if (index != -1) 
+                    {
+                        EnemyObject enemy = _listEnemyObject.ElementAt(index);
+
+                        enemy._x = x;
+                        enemy._y = y;
+                    }
+                }
+            }
+        }
+
+        private void loadGameObject(string path,int tag,TypeObject typeObject)
+        {
+            ToolTip tooltip = new ToolTip();
+            tooltip.AutoPopDelay = 5000;
+            tooltip.InitialDelay = 100;
+            tooltip.ReshowDelay = 500;
+
+            Image img = new Bitmap(path);
+
+            PictureBox tile = new PictureBox();
+            tile.BackColor = Color.Transparent;
+            tile.SizeMode = PictureBoxSizeMode.AutoSize;
+            tile.Tag = tag;
+            tile.Image = img;
+            tile.Click += Tile_Click;
+            tooltip.SetToolTip(tile, "Tag: " + (int)tile.Tag);
+
+            _listPathObject.Add(new Tuple<int, string>((int)tile.Tag, path));
+
+            if (typeObject==TypeObject.Static)
+            {
+                flowLayoutPanel1.Controls.Add(tile);
+            }
+            else
+            {
+                flowLayoutPanel2.Controls.Add(tile);
+            }           
+            
+        }
+
+        private void moveToNextElement(XmlReader reader)
+        {
+            reader.Read();
+            reader.MoveToContent();
+        }
+
+        EnemyObject.Direction getDirection(string str)
+        {
+            int dir = int.Parse(str);
+
+            if (dir == 1)
+            {
+                return EnemyObject.Direction.Left;
+            }
+            else
+            {
+                return EnemyObject.Direction.Right;
             }
         }
     }
