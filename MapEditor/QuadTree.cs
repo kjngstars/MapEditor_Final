@@ -24,7 +24,7 @@ namespace MapEditor
         public List<NodeObject> _listNodeObject;
         public QuadNode(int x, int y, int width, int height, int nodeID)
         {
-            _bouding = new System.Drawing.Rectangle(x, y, width, height);
+            _bouding = new Rectangle(x, y, width, height);
             _id = nodeID;
             _listNodeObject = new List<NodeObject>();
         }
@@ -167,7 +167,7 @@ namespace MapEditor
 
             foreach (NodeObject item in listObject)
             {
-                if (System.Drawing.Rectangle.Intersect((System.Drawing.Rectangle)item._boxObject, quadrant._bouding) != System.Drawing.Rectangle.Empty)
+                if (Rectangle.Intersect((Rectangle)item._boxObject, quadrant._bouding) != Rectangle.Empty)
                 {
                     quadrant._listNodeObject.Add(item);
                 }
@@ -233,6 +233,11 @@ namespace MapEditor
                 traverseTree4Writring(writer, node._bottomLeft);
                 traverseTree4Writring(writer, node._bottomRight);
             }
+        }
+
+        public void addNodeObject(NodeObject nodeObject)
+        {
+
         }
     }
 }

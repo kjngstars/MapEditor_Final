@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace MapEditor
         public int _height { get; set; }
         public int _type { get; set; }
         public List<SubObject> _group { get; set; }
+        public List<Tuple<Point, Point>> _listVectorCollide { get; set; }
 
     }
 

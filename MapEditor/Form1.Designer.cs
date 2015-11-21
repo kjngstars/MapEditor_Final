@@ -53,6 +53,7 @@
             this.value64toolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cursorDesignToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupObjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showQuadTreeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stuffToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMapObjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMapEnemyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,6 +73,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tbPatrolWidth = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.setLineCollideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -315,10 +317,12 @@
             this.gridToolStripMenuItem,
             this.gridSizeToolStripMenuItem,
             this.cursorDesignToolStripMenuItem,
-            this.groupObjectToolStripMenuItem});
+            this.groupObjectToolStripMenuItem,
+            this.setLineCollideToolStripMenuItem,
+            this.showQuadTreeToolStripMenuItem});
             this.modeToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.modeToolStripMenuItem.Name = "modeToolStripMenuItem";
-            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 29);
+            this.modeToolStripMenuItem.Size = new System.Drawing.Size(62, 34);
             this.modeToolStripMenuItem.Text = "Mode";
             // 
             // gridToolStripMenuItem
@@ -342,14 +346,14 @@
             this.value32toolStripMenuItem.Checked = true;
             this.value32toolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.value32toolStripMenuItem.Name = "value32toolStripMenuItem";
-            this.value32toolStripMenuItem.Size = new System.Drawing.Size(152, 26);
+            this.value32toolStripMenuItem.Size = new System.Drawing.Size(98, 26);
             this.value32toolStripMenuItem.Text = "32";
             this.value32toolStripMenuItem.Click += new System.EventHandler(this.value32toolStripMenuItem_Click);
             // 
             // value64toolStripMenuItem
             // 
             this.value64toolStripMenuItem.Name = "value64toolStripMenuItem";
-            this.value64toolStripMenuItem.Size = new System.Drawing.Size(152, 26);
+            this.value64toolStripMenuItem.Size = new System.Drawing.Size(98, 26);
             this.value64toolStripMenuItem.Text = "64";
             this.value64toolStripMenuItem.Click += new System.EventHandler(this.value64toolStripMenuItem_Click);
             // 
@@ -369,6 +373,12 @@
             this.groupObjectToolStripMenuItem.Text = "Group object";
             this.groupObjectToolStripMenuItem.Click += new System.EventHandler(this.groupObjectToolStripMenuItem_Click);
             // 
+            // showQuadTreeToolStripMenuItem
+            // 
+            this.showQuadTreeToolStripMenuItem.Name = "showQuadTreeToolStripMenuItem";
+            this.showQuadTreeToolStripMenuItem.Size = new System.Drawing.Size(223, 26);
+            this.showQuadTreeToolStripMenuItem.Text = "Show QuadTree";
+            // 
             // stuffToolStripMenuItem
             // 
             this.stuffToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -378,7 +388,7 @@
             this.clearAllToolStripMenuItem});
             this.stuffToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.stuffToolStripMenuItem.Name = "stuffToolStripMenuItem";
-            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.stuffToolStripMenuItem.Size = new System.Drawing.Size(54, 34);
             this.stuffToolStripMenuItem.Text = "Stuff";
             // 
             // saveMapObjectToolStripMenuItem
@@ -562,6 +572,13 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "patrol area width:";
             // 
+            // setLineCollideToolStripMenuItem
+            // 
+            this.setLineCollideToolStripMenuItem.Name = "setLineCollideToolStripMenuItem";
+            this.setLineCollideToolStripMenuItem.Size = new System.Drawing.Size(223, 26);
+            this.setLineCollideToolStripMenuItem.Text = "Set Line Collide";
+            this.setLineCollideToolStripMenuItem.Click += new System.EventHandler(this.setLineCollideToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -641,6 +658,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button btnLoadEnemy;
+        private System.Windows.Forms.ToolStripMenuItem showQuadTreeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setLineCollideToolStripMenuItem;
     }
 }
 
