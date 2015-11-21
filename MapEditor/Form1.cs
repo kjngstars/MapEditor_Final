@@ -898,7 +898,7 @@ namespace MapEditor
                 });
             }
 
-            //create quadtree with maximum object per node
+            //create with maximum object per node
             QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, _allGameObject,400);
             //QuadTree quadTree = new QuadTree(0, 0, pictureBox1.Width, pictureBox1.Height, _allGameObject);
 
@@ -951,16 +951,18 @@ namespace MapEditor
                     writer.WriteAttributeString("id", item._id.ToString());
                     writer.WriteAttributeString("category", "block");
 
-                    writer.WriteStartElement("lines");
-                    foreach (var line in item._listVectorCollide)
+                    if (item._listVectorCollide != null)
                     {
-                        writer.WriteStartElement("line");
-                        writer.WriteElementString("p1", "{" + line.Item1.X + "," + line.Item1.Y + "}");
-                        writer.WriteElementString("p2", "{" + line.Item2.X + "," + line.Item2.Y + "}");
+                        writer.WriteStartElement("lines");
+                        foreach (var line in item._listVectorCollide)
+                        {
+                            writer.WriteStartElement("line");
+                            writer.WriteElementString("p1", "{" + line.Item1.X + "," + line.Item1.Y + "}");
+                            writer.WriteElementString("p2", "{" + line.Item2.X + "," + line.Item2.Y + "}");
+                            writer.WriteEndElement();
+                        }
                         writer.WriteEndElement();
                     }
-                    writer.WriteEndElement();
-
                     writer.WriteElementString("pos", "{" + item._x + "," + item._y + "}");
                     writer.WriteElementString("size", "{" + item._width + "," + item._height + "}");
                                                        
